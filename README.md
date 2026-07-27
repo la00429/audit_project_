@@ -4,9 +4,11 @@
 
 > Reto 4: Productividad y herramientas para desarrolladores — Hackathon Código Facilito + Kiro 2026
 
+---
+
 ## El Problema
 
-Los desarrolladores dedicamos horas a revisar manualmente nuestras interfaces buscando problemas de accesibilidad y errores visuales. Este proceso es:
+Los desarrolladores dedicamos horas revisando manualmente interfaces buscando problemas de accesibilidad y errores visuales:
 
 - **Repetitivo** — las mismas verificaciones en cada deploy
 - **Propenso a errores** — el ojo humano no detecta ratios de contraste
@@ -15,22 +17,13 @@ Los desarrolladores dedicamos horas a revisar manualmente nuestras interfaces bu
 
 ## La Solución
 
-**AuditTest Vision** automatiza todo esto con un solo comando:
-
 ```bash
-npx audittest-vision https://tu-sitio.com --fix
+npx audittest-vision https://tu-sitio.com --report --fix
 ```
 
-Usa Puppeteer para navegar la página, extrae el DOM completo, y ejecuta un motor de reglas que detecta:
+En segundos: score de accesibilidad, lista de problemas, sugerencias de fix, y un reporte HTML interactivo con el screenshot de la página anotado.
 
-- Contraste de color insuficiente (WCAG 1.4.3)
-- Imágenes sin texto alternativo (WCAG 1.1.1)
-- Formularios sin labels accesibles (WCAG 1.3.1)
-- Jerarquía de headings incorrecta (WCAG 1.3.1)
-- Ausencia de landmarks semánticos (WCAG 1.3.1)
-- Elementos fuera del viewport (detección visual)
-- Botones/enlaces sin texto accesible (WCAG 1.1.1)
-- **Sugerencias de auto-fix** para cada problema
+---
 
 ## Publicado en npm
 
@@ -38,81 +31,152 @@ Usa Puppeteer para navegar la página, extrae el DOM completo, y ejecuta un moto
 npx audittest-vision https://cualquier-sitio.com
 ```
 
-Disponible globalmente: [npmjs.com/package/audittest-vision](https://www.npmjs.com/package/audittest-vision)
+**https://www.npmjs.com/package/audittest-vision**
+
+---
+
+## Comandos
+
+### Auditoría básica
+```bash
+npx audittest-vision https://google.com
+```
+
+### Con sugerencias de fix
+```bash
+npx audittest-vision https://miapp.com --fix
+```
+
+### Reporte HTML interactivo (con screenshot anotado + score gauge)
+```bash
+npx audittest-vision https://miapp.com --report --fix
+```
+
+### Exportar como PDF
+```bash
+npx audittest-vision https://miapp.com --pdf
+```
+
+### Comparar dos URLs (producción vs staging)
+```bash
+npx audittest-vision https://prod.com --diff https://staging.com
+```
+
+### Watch mode (re-audita cada 30s durante desarrollo)
+```bash
+npx audittest-vision http://localhost:3000 --watch
+```
+
+### Salida JSON (para CI/CD pipelines)
+```bash
+npx audittest-vision https://miapp.com --json
+```
+
+### Guardar screenshot
+```bash
+npx audittest-vision https://miapp.com --screenshot
+```
+
+---
+
+## Referencia Completa de Flags
+
+| Flag | Descripción |
+|------|-------------|
+| `<url>` | URL o ruta de archivo a auditar |
+| `--fix` | Muestra sugerencias de auto-fix para cada issue |
+| `--report` | Genera reporte HTML interactivo con screenshot anotado |
+| `--pdf` | Exporta el reporte como PDF |
+| `--json` | Salida JSON para pipelines CI/CD |
+| `--diff <url2>` | Compara accesibilidad entre dos URLs |
+| `--watch` | Re-audita cada 30 segundos (modo dev) |
+| `--screenshot` | Guarda screenshot como PNG |
+| `--help, -h` | Muestra ayuda completa |
+
+---
+
+## Accessibility Score (0-100)
+
+Cada auditoría calcula un puntaje basado en la severidad de los issues:
+
+```
+████████████████░░░░ 82/100 — Bueno
+```
+
+| Rango | Clasificación | Color |
+|-------|--------------|-------|
+| 90-100 | Excelente | Verde |
+| 70-89 | Bueno | Amarillo |
+| 50-69 | Necesita trabajo | Naranja |
+| 0-49 | Pobre | Rojo |
+
+**Fórmula:** `score = max(0, 100 - (critical×25 + major×10 + minor×3))`
+
+---
+
+## Reglas Evaluadas (WCAG 2.1)
+
+| Regla | Criterio | Nivel | Severidad |
+|-------|----------|-------|-----------|
+| Imágenes sin alt text | 1.1.1 | A | Major |
+| Botones/enlaces sin texto | 1.1.1 | A | Major |
+| Inputs sin label | 1.3.1 | A | Major |
+| Headings saltados | 1.3.1 | A | Minor |
+| Sin landmarks semánticos | 1.3.1 | A | Minor |
+| Contraste insuficiente | 1.4.3 | AA | Critical/Major |
+| Overflow del viewport | Visual | — | Major |
+
+---
 
 ## Características
 
 | Feature | Descripción |
 |---------|-------------|
-| **CLI standalone** | Funciona 100% local con Puppeteer, sin APIs externas |
-| **WCAG 2.1 AA** | 7 reglas de accesibilidad evaluadas automáticamente |
-| **Detección visual** | Analiza bounding boxes para detectar overflow y elementos fuera del viewport |
-| **Auto-Fix** | Genera sugerencias de CSS/HTML para corregir cada issue |
-| **CI/CD ready** | Exit code 1 en issues críticos + salida `--json` |
-| **Chrome Extension** | UI con botón flotante, badges de severidad, export a GitHub Issue |
-| **Git Hook** | Pre-push que bloquea deploy si hay issues críticos |
-| **Zero config** | Funciona out-of-the-box sin configuración |
+| **Score 0-100** | Puntaje de accesibilidad con gauge visual en el reporte |
+| **7 reglas WCAG** | Evaluación automática de criterios reales |
+| **Reporte HTML** | Screenshot anotado, markers clickeables, light/dark mode |
+| **PDF export** | Genera PDF del reporte para compartir |
+| **Diff entre URLs** | Compara producción vs staging, muestra regresiones |
+| **Watch mode** | Re-audita cada 30s, detecta [NEW] y [FIXED] |
+| **Auto-Fix** | Sugerencias concretas de CSS/HTML para cada issue |
+| **CI/CD ready** | Exit code 1 en críticos + salida JSON |
+| **Git Hook** | Pre-push que bloquea deploy con issues críticos |
+| **Chrome Extension** | Botón flotante, badges visuales, export a GitHub Issue |
+| **100% local** | Puppeteer headless, sin APIs externas |
+
+---
 
 ## Arquitectura
 
 ```
-┌──────────────────────────────────────────────────────┐
-│               AuditTest Vision                        │
-├──────────────────────────────────────────────────────┤
-│                                                      │
-│  ┌────────────┐  ┌────────────┐  ┌─────────────┐   │
-│  │  Visual    │  │   WCAG     │  │  Auto-Fix   │   │
-│  │  Module    │  │  Module    │  │   Module    │   │
-│  │(Puppeteer) │  │ (Reglas)   │  │ (Sugerencias│   │
-│  └─────┬──────┘  └─────┬──────┘  └──────┬──────┘   │
-│        └───────┬────────┴────────┬───────┘          │
-│                │                 │                    │
-│         ┌──────┴──────┐  ┌──────┴──────┐           │
-│         │Audit Engine │  │  CLI Tool   │           │
-│         │(Orquestador)│  │ (Terminal)  │           │
-│         └──────┬──────┘  └─────────────┘           │
-│                │                                     │
-│         ┌──────┴──────┐                             │
-│         │   Chrome    │                             │
-│         │  Extension  │                             │
-│         └─────────────┘                             │
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                     AuditTest Vision                          │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌────────────┐  ┌────────────┐  ┌─────────────┐           │
+│  │  Visual    │  │   WCAG     │  │  Auto-Fix   │           │
+│  │  Module    │  │  Module    │  │   Module    │           │
+│  │(Puppeteer) │  │ (7 Reglas) │  │(Sugerencias)│           │
+│  └─────┬──────┘  └─────┬──────┘  └──────┬──────┘           │
+│        └────────┬───────┴────────┬───────┘                  │
+│                 │                │                            │
+│          ┌──────┴──────┐  ┌─────┴────────┐                 │
+│          │Score Engine │  │ Report Gen.  │                 │
+│          │  (0-100)    │  │(HTML/PDF/JSON)│                 │
+│          └──────┬──────┘  └──────────────┘                 │
+│                 │                                            │
+│  ┌──────────────┼──────────────────────────┐               │
+│  │              │                          │               │
+│  ▼              ▼                          ▼               │
+│ CLI           Chrome Ext.            Git Hook              │
+│ --report      Popup UI               Pre-push             │
+│ --diff        Badges                  Quality gate         │
+│ --watch       GitHub export                                │
+│ --pdf                                                      │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-## Uso
-
-### CLI (Terminal) — Forma principal
-
-```bash
-# Auditar cualquier URL pública
-npx audittest-vision https://google.com
-
-# Con sugerencias de cómo arreglar cada issue
-npx audittest-vision https://miapp.com --fix
-
-# Salida JSON para pipelines CI/CD
-npx audittest-vision https://miapp.com --json
-
-# Guardar screenshot de la página auditada
-npx audittest-vision https://miapp.com --screenshot
-
-# Auditar un archivo HTML local
-npx audittest-vision ./dist/index.html
-```
-
-### Chrome Extension (UI visual)
-
-1. Clonar repo y compilar: `npm install && npm run package`
-2. Abrir `chrome://extensions/` → activar Modo desarrollador
-3. "Cargar extensión sin empaquetar" → seleccionar `dist/extension/`
-4. Navegar a cualquier página → click en botón **Audit**
-
-### Git Hook (automatización pre-push)
-
-```bash
-cp src/cli/git-hook-pre-push.sh .git/hooks/pre-push
-chmod +x .git/hooks/pre-push
-```
+---
 
 ## Instalación desde código fuente
 
@@ -123,85 +187,90 @@ npm install
 npm run package
 ```
 
+## Chrome Extension
+
+1. Compilar: `npm run package`
+2. Abrir `chrome://extensions/` → Modo desarrollador
+3. "Cargar sin empaquetar" → seleccionar `dist/extension/`
+4. Navegar a cualquier página → click en botón flotante **Audit**
+
+## Git Hook (pre-push)
+
+```bash
+cp src/cli/git-hook-pre-push.sh .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
+```
+
+---
+
 ## Tecnologías
 
 | Tecnología | Uso |
 |-----------|-----|
 | **TypeScript 5** | Lenguaje principal (strict mode) |
-| **Puppeteer 22** | Navegador headless para captura y análisis DOM |
-| **Chrome Manifest V3** | Extensión del navegador moderna |
-| **Kiro IDE** | Desarrollo con Spec-Driven Development (SDD) |
+| **Puppeteer 22** | Navegador headless, screenshots, PDF generation |
+| **Chrome Manifest V3** | Extensión del navegador |
+| **Kiro IDE** | Spec-Driven Development (SDD) |
 | **Node.js** | Runtime para CLI |
 | **npm** | Distribución del paquete |
 
+---
+
 ## Desarrollo con Kiro (Spec-Driven Development)
 
-Este proyecto fue construido íntegramente usando el flujo SDD de Kiro IDE:
+Proyecto construido usando el flujo SDD nativo de Kiro IDE:
 
 ```
 .kiro/
 ├── specs/audit-vision/
-│   ├── requirements.md    ← Requisitos funcionales (formato EARS)
+│   ├── requirements.md    ← 11 requisitos EARS + 7 NFRs
 │   ├── design.md          ← Arquitectura y flujo de datos
-│   └── tasks.md           ← Checklist de implementación (27 tareas)
+│   └── tasks.md           ← 41 tareas en 11 fases
 ├── hooks/
 │   ├── validate-env.json  ← Valida config antes de tareas
 │   ├── lint-on-save.json  ← TypeScript check al guardar
-│   └── pre-push-audit-check.json ← Gate de calidad pre-push
+│   └── pre-push-audit-check.json ← Gate de calidad
 └── steering/
-    └── audit-vision.md    ← Reglas de estilo y estándares
+    └── audit-vision.md    ← Estándares y reglas del proyecto
 ```
 
-### Flujo SDD aplicado:
-
-1. **Requirements** → 6 requisitos funcionales + 4 NFRs en formato EARS
-2. **Design** → Arquitectura microkernel, interfaces TypeScript, flujo de datos
-3. **Tasks** → 27 tareas en 6 fases ejecutadas secuencialmente
-4. **Hooks** → Automatización de validaciones en cada paso
-5. **Steering** → Contexto persistente para consistencia del código
+---
 
 ## Estructura del Proyecto
 
 ```
 audittest-vision/
 ├── src/
-│   ├── core/
-│   │   └── auditEngine.ts      # Orquestador central (microkernel)
+│   ├── core/auditEngine.ts        # Orquestador (microkernel)
 │   ├── modules/
-│   │   ├── visualModule.ts      # Detección visual de errores de layout
-│   │   ├── wcagModule.ts        # Motor de reglas WCAG 2.1
-│   │   └── autoFixModule.ts     # Generador de sugerencias de fix
-│   ├── extension/
-│   │   ├── manifest.json        # Chrome Manifest V3
-│   │   ├── popup.html/ts        # UI del popup
-│   │   ├── content.ts           # Script inyectado en páginas
-│   │   └── background.ts        # Service worker
+│   │   ├── visualModule.ts         # Detección visual
+│   │   ├── wcagModule.ts           # Motor de reglas WCAG
+│   │   └── autoFixModule.ts        # Generador de sugerencias
+│   ├── extension/                  # Chrome Extension completa
+│   │   ├── manifest.json, popup.html/ts
+│   │   ├── content.ts, background.ts
+│   │   └── icons/
 │   └── cli/
-│       ├── audittest.ts         # CLI standalone (entry point)
-│       └── git-hook-pre-push.sh # Hook de git
-├── scripts/                     # Build y utilidades
-├── .kiro/                       # Specs, hooks, steering (SDD)
-├── audit-rules.spec.json        # Configuración de reglas
-├── docs/                        # Landing page (GitHub Pages)
-└── dist/                        # Build compilado
+│       ├── audittest.ts            # CLI principal (entry point)
+│       └── git-hook-pre-push.sh    # Hook de git
+├── scripts/                        # Build utilities
+├── docs/index.html                 # Landing page (GitHub Pages)
+├── .kiro/                          # SDD specs, hooks, steering
+├── audit-rules.spec.json           # Configuración de reglas
+└── dist/                           # Build compilado
 ```
 
-## Demo y enlaces
+---
+
+## Demo y Enlaces
 
 | Recurso | URL |
 |---------|-----|
-| **npm (producción)** | https://www.npmjs.com/package/audittest-vision |
-| **Repositorio** | https://github.com/la00429/audit_project_ |
-| **Landing Page** | https://la00429.github.io/audit_project_/ |
+| **npm** | https://www.npmjs.com/package/audittest-vision |
+| **GitHub** | https://github.com/la00429/audit_project_ |
+| **Landing** | https://la00429.github.io/audit_project_/ |
 
-## Configuración Avanzada
-
-Editar `audit-rules.spec.json` para personalizar:
-
-- Nivel WCAG (A, AA, AAA)
-- Habilitar/deshabilitar reglas específicas
-- Umbrales del quality gate para el git hook
-- Permisos de auto-fix (CSS, HTML, atributos)
+---
 
 ## Autor
 

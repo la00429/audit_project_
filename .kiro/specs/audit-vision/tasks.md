@@ -1,46 +1,64 @@
 # AuditTest Vision — Task Checklist
 
 ## Phase 1: Project Foundation
-
-- [x] 1. Initialize `package.json` with TypeScript, Puppeteer, and @types/chrome dependencies
-- [x] 2. Create `tsconfig.json` with strict mode and ESNext module configuration
-- [x] 3. Create `tsconfig.extension.json` extending base config for Chrome extension output
-- [x] 4. Create `.gitignore` excluding node_modules, dist, secrets, and temp files
-- [x] 5. Create `.kiroignore` excluding screenshots, recordings, and build artifacts
-- [x] 6. Create `audit-rules.spec.json` with WCAG, visual, autofix, and gate configurations
+- [x] 1. Initialize package.json with dependencies
+- [x] 2. Create tsconfig.json with strict mode
+- [x] 3. Create .gitignore, .kiroignore, audit-rules.spec.json
 
 ## Phase 2: Core Engine & Modules
-
-- [x] 7. Create `src/core/auditEngine.ts` — orchestrator with parallel module dispatch and report builder
-- [x] 8. Create `src/modules/visualModule.ts` — Vision LLM API integration with structured prompt
-- [x] 9. Create `src/modules/wcagModule.ts` — rule-based checks: alt, contrast, labels, headings, landmarks
-- [x] 10. Create `src/modules/autoFixModule.ts` — rule-based + LLM fallback patch generator
+- [x] 4. Create src/core/auditEngine.ts — orchestrator
+- [x] 5. Create src/modules/visualModule.ts — visual detection
+- [x] 6. Create src/modules/wcagModule.ts — WCAG rules
+- [x] 7. Create src/modules/autoFixModule.ts — fix generator
 
 ## Phase 3: Chrome Extension
+- [x] 8. Create manifest.json (Manifest V3)
+- [x] 9. Create popup.html + popup.ts
+- [x] 10. Create content.ts + content.css
+- [x] 11. Create background.ts (service worker)
 
-- [x] 11. Create `src/extension/manifest.json` — Manifest V3 with permissions and service worker
-- [x] 12. Create `src/extension/popup.html` — dark-themed popup with summary cards and issue list
-- [x] 13. Create `src/extension/popup.ts` — popup controller with audit trigger, result rendering, GitHub export
-- [x] 14. Create `src/extension/content.ts` — DOM extractor, floating FAB, and visual badge renderer
-- [x] 15. Create `src/extension/content.css` — minimal overlay styles with pulse animation
-- [x] 16. Create `src/extension/background.ts` — service worker orchestrating screenshot, DOM, API, storage
+## Phase 4: CLI Base
+- [x] 12. Create src/cli/audittest.ts with base flags (--fix, --json, --screenshot)
+- [x] 13. Create git-hook-pre-push.sh
+- [x] 14. Verify CLI works with real URL (example.com)
 
-## Phase 4: CLI & Automation
+## Phase 5: HTML Report
+- [x] 15. Implement --report flag with screenshot overlay
+- [x] 16. Add interactive markers + sidebar
+- [x] 17. Add light/dark mode toggle
 
-- [x] 17. Create `src/cli/git-hook-pre-push.sh` — headless Puppeteer audit with quality gate blocking
+## Phase 6: Accessibility Score (v1.1.0)
+- [ ] 18. Implement scoring algorithm (100 - weighted deductions)
+- [ ] 19. Add score display to terminal output (colored bar)
+- [ ] 20. Add score gauge to HTML report
+- [ ] 21. Include score in JSON output
 
-## Phase 5: Kiro Integration
+## Phase 7: URL Diff Comparison (v1.1.0)
+- [ ] 22. Implement --diff flag to accept second URL
+- [ ] 23. Run parallel audits on both URLs
+- [ ] 24. Calculate diff (new issues, fixed issues, persistent)
+- [ ] 25. Display diff in terminal with +/- indicators
+- [ ] 26. Add score delta display
 
-- [x] 18. Create `.kiro/specs/audit-vision/requirements.md` — EARS-format functional specs
-- [x] 19. Create `.kiro/specs/audit-vision/design.md` — architecture and data flow diagrams
-- [x] 20. Create `.kiro/specs/audit-vision/tasks.md` — this file (step-by-step checklist)
-- [ ] 21. Create `.kiro/settings/mcp.json` — MCP server configurations for filesystem, browser, and git
-- [ ] 22. Create Kiro hooks: validate-env (PreTaskExec), lint-on-save (PostFileSave), pre-push-audit (PreToolUse)
-- [ ] 23. Create `.kiro/steering/audit-vision.md` — project steering rules for consistent behavior
+## Phase 8: Watch Mode (v1.1.0)
+- [ ] 27. Implement --watch flag with 30s interval
+- [ ] 28. Track issues between runs (detect [NEW] and [FIXED])
+- [ ] 29. Display changes in terminal on each cycle
+- [ ] 30. Clean exit on Ctrl+C
 
-## Phase 6: Verification
+## Phase 9: PDF Export (v1.1.0)
+- [ ] 31. Implement --pdf flag using Puppeteer to render HTML report
+- [ ] 32. Generate PDF with score, issues, and screenshot
+- [ ] 33. Save as audittest-report.pdf
 
-- [ ] 24. Run `npm install` to verify dependency resolution
-- [ ] 25. Run `npm run build` (tsc) to verify zero compilation errors
-- [ ] 26. Verify Chrome extension loads in `chrome://extensions/` developer mode
-- [ ] 27. Run pre-push hook against a sample HTML file to confirm gate logic
+## Phase 10: Documentation & Polish
+- [ ] 34. Update README.md with all new commands and examples
+- [ ] 35. Update landing page (docs/index.html)
+- [ ] 36. Update --help text with all flags
+- [ ] 37. Final build + npm publish v1.1.0
+
+## Phase 11: Kiro Integration
+- [x] 38. SDD requirements.md with EARS specs for all features
+- [x] 39. SDD tasks.md (this file)
+- [x] 40. Hooks: validate-env, lint-on-save, pre-push-audit
+- [x] 41. Steering: audit-vision.md with standards
