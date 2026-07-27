@@ -5,5 +5,5 @@
     "rootDir": "./src",
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/extension/**/*.ts", "src/core/**/*.ts", "src/modules/**/*.ts"]
+  "include": ["src/extension/**/*.ts", "src/core/**/*.ts", "src/modules/**/*.ts", "src/cli/**/*.ts"]
 }

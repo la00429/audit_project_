@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuditTest Vision</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0f;color:#e4e4e7;line-height:1.7}
+    .c{max-width:860px;margin:0 auto;padding:0 24px}
+    header{padding:80px 0 48px;text-align:center;background:linear-gradient(180deg,#1a1025,#0a0a0f)}
+    h1{font-size:2.8rem;background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+    .sub{font-size:1.15rem;color:#a1a1aa;max-width:600px;margin:0 auto 32px}
+    .badge{display:inline-block;background:#6366f1;color:#fff;padding:4px 14px;border-radius:20px;font-size:.78rem;margin-bottom:20px;font-weight:500}
+    .cta{display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 32px;border-radius:8px;font-size:1rem;font-weight:600;text-decoration:none;margin-top:12px;transition:opacity .2s}
+    .cta:hover{opacity:.85}
+    section{padding:64px 0;border-top:1px solid #1f1f2e}
+    h2{font-size:1.6rem;margin-bottom:24px;color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+    .card{background:#15151e;border:1px solid #27272a;border-radius:12px;padding:24px}
+    .card h3{font-size:1rem;color:#a78bfa;margin-bottom:8px}
+    .card p{font-size:.9rem;color:#a1a1aa}
+    pre{background:#15151e;border:1px solid #27272a;border-radius:8px;padding:20px;overflow-x:auto;font-size:.85rem;color:#c4b5fd;margin:16px 0}
+    .tech{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .tech span{background:#1f1f2e;border:1px solid #3f3f46;padding:6px 14px;border-radius:6px;font-size:.8rem;color:#d4d4d8}
+    .flow{background:#15151e;border:1px solid #27272a;border-radius:12px;padding:24px;margin:16px 0}
+    .flow ol{padding-left:20px}
+    .flow li{margin-bottom:10px;color:#a1a1aa}
+    .flow li strong{color:#a78bfa}
+    footer{padding:40px 0;text-align:center;color:#52525b;font-size:.85rem;border-top:1px solid #1f1f2e}
+    footer a{color:#6366f1;text-decoration:none}
+  </style>
+</head>
+<body>
+<header>
+  <div class="c">
+    <span class="badge">Hackathon Codigo Facilito + Kiro 2026 - Reto 4</span>
+    <h1>AuditTest Vision</h1>
+    <p class="sub">Herramienta CLI que automatiza la auditoria visual y de accesibilidad web para desarrolladores. Un comando, cero configuracion, resultados inmediatos.</p>
+    <a class="cta" href="https://github.com/la00429/audit_project_">Ver en GitHub</a>
+  </div>
+</header>
+
+<section>
+  <div class="c">
+    <h2>El problema que resuelve</h2>
+    <p style="color:#a1a1aa;margin-bottom:20px">Cada vez que haces deploy, deberias revisar accesibilidad y errores visuales. Pero es tedioso, repetitivo y facil de olvidar. AuditTest Vision lo hace por ti en segundos.</p>
+    <pre>$ npx audittest-vision https://tu-sitio.com --fix
+
+  ► Iniciando navegador headless...
+  ► Navegando a: https://tu-sitio.com
+  ► 347 elementos analizados
+  ► Ejecutando auditoria WCAG + Visual...
+
+  Resumen: 5 problemas encontrados
+    ● 1 critico(s)
+    ● 3 mayor(es)
+    ● 1 menor(es)
+
+  [CRITICAL] Contraste de color insuficiente
+    ratio 1.89:1 (minimo 4.5:1)
+    Fix: color: #000000;
+
+  [MAJOR] Imagen sin texto alternativo
+    Fix: alt="Descripcion de la imagen"
+    ...</pre>
+  </div>
+</section>
+
+<section>
+  <div class="c">
+    <h2>Funcionalidades</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>CLI Local</h3>
+        <p>Funciona 100% en tu maquina con Puppeteer. Sin APIs externas, sin costos, sin latencia.</p>
+      </div>
+      <div class="card">
+        <h3>WCAG 2.1 AA</h3>
+        <p>Evalua contraste, alt text, labels, headings y landmarks automaticamente.</p>
+      </div>
+      <div class="card">
+        <h3>Auto-Fix</h3>
+        <p>Genera sugerencias de CSS/HTML para corregir cada problema detectado.</p>
+      </div>
+      <div class="card">
+        <h3>CI/CD Ready</h3>
+        <p>Exit code 1 en issues criticos + salida JSON para integrar en pipelines.</p>
+      </div>
+      <div class="card">
+        <h3>Chrome Extension</h3>
+        <p>Boton flotante en cualquier pagina. Resultados visuales con badges de severidad.</p>
+      </div>
+      <div class="card">
+        <h3>Git Hook</h3>
+        <p>Bloquea push automaticamente si detecta problemas criticos de accesibilidad.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="c">
+    <h2>Desarrollo con Kiro SDD</h2>
+    <p style="color:#a1a1aa;margin-bottom:16px">Construido integramente usando el flujo Spec-Driven Development de Kiro IDE:</p>
+    <div class="flow">
+      <ol>
+        <li><strong>Requirements</strong> — Requisitos funcionales en formato EARS (6 reqs + 4 NFRs)</li>
+        <li><strong>Design</strong> — Arquitectura microkernel, interfaces TypeScript, flujo de datos</li>
+        <li><strong>Tasks</strong> — 27 tareas en 6 fases ejecutadas secuencialmente</li>
+        <li><strong>Hooks</strong> — Validacion de API keys, lint automatico, gate pre-push</li>
+        <li><strong>Steering</strong> — Reglas de estilo y estandares persistentes</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="c">
+    <h2>Tecnologias</h2>
+    <div class="tech">
+      <span>TypeScript</span>
+      <span>Puppeteer</span>
+      <span>Chrome Manifest V3</span>
+      <span>Kiro IDE (SDD)</span>
+      <span>Node.js</span>
+      <span>WCAG 2.1</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="c">
+    <h2>Instalacion rapida</h2>
+    <pre>git clone https://github.com/la00429/audit_project_.git
+cd audit_project_
+npm install
+npm run package
+
+# Usar el CLI
+npx audittest-vision https://cualquier-sitio.com --fix</pre>
+  </div>
+</section>
+
+<footer>
+  <div class="c">
+    <p>AuditTest Vision — <a href="https://github.com/la00429/audit_project_">GitHub</a> — MIT License</p>
+    <p style="margin-top:8px">Hackathon Codigo Facilito + Kiro 2026</p>
+  </div>
+</footer>
+</body>
+</html>
