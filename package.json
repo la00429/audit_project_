@@ -1,6 +1,6 @@
 {
   "name": "audittest-vision",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "CLI que automatiza auditoria de accesibilidad (WCAG 2.1) y deteccion de errores visuales de layout en paginas web",
   "main": "dist/core/auditEngine.js",
   "type": "module",
