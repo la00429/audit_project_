@@ -13,7 +13,7 @@ interface AuditMessage {
 }
 interface AuditIssue {
     id: string;
-    severity: string;
+    severity: 'critical' | 'major' | 'minor' | 'info';
     title: string;
     description: string;
     selector?: string;
