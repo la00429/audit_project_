@@ -1,7 +1,7 @@
 {
   "name": "audittest-vision",
   "version": "1.0.0",
-  "description": "Herramienta CLI de auditoria visual y accesibilidad web automatizada para desarrolladores",
+  "description": "CLI que automatiza auditoria de accesibilidad (WCAG 2.1) y deteccion de errores visuales de layout en paginas web",
   "main": "dist/core/auditEngine.js",
   "type": "module",
   "bin": {
@@ -18,9 +18,9 @@
   "homepage": "https://la00429.github.io/audit_project_/",
   "scripts": {
     "build": "tsc --project tsconfig.extension.json",
-    "postbuild": "node scripts/copy-assets.js",
+    "postbuild": "node scripts/copy-assets.cjs",
     "build:check": "tsc --noEmit",
-    "icons": "node scripts/generate-icons.js",
+    "icons": "node scripts/generate-icons.cjs",
     "lint": "eslint src/**/*.ts",
     "clean": "rimraf dist",
     "package": "npm run clean && npm run build && npm run postbuild"

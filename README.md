@@ -1,6 +1,6 @@
 # AuditTest Vision
 
-**Herramienta de productividad para desarrolladores** que automatiza la auditoría visual y de accesibilidad web usando visión computacional e inteligencia artificial.
+**Herramienta CLI de productividad** que automatiza la auditoría de accesibilidad (WCAG 2.1) y detección de errores visuales de layout en páginas web. Un comando, cero configuración, resultados inmediatos.
 
 > Reto 4: Productividad y herramientas para desarrolladores — Hackathon Código Facilito + Kiro 2026
 
@@ -18,105 +18,108 @@ Los desarrolladores dedicamos horas a revisar manualmente nuestras interfaces bu
 **AuditTest Vision** automatiza todo esto con un solo comando:
 
 ```bash
-npx audittest-vision https://tu-sitio.com
+npx audittest-vision https://tu-sitio.com --fix
 ```
 
-En segundos obtienes un reporte con:
+Usa Puppeteer para navegar la página, extrae el DOM completo, y ejecuta un motor de reglas que detecta:
 
-- Problemas de contraste de color (WCAG 1.4.3)
+- Contraste de color insuficiente (WCAG 1.4.3)
 - Imágenes sin texto alternativo (WCAG 1.1.1)
 - Formularios sin labels accesibles (WCAG 1.3.1)
-- Jerarquía de headings incorrecta
-- Elementos fuera del viewport
-- Botones/enlaces sin texto accesible
-- **Sugerencias de auto-fix** para cada problema detectado
+- Jerarquía de headings incorrecta (WCAG 1.3.1)
+- Ausencia de landmarks semánticos (WCAG 1.3.1)
+- Elementos fuera del viewport (detección visual)
+- Botones/enlaces sin texto accesible (WCAG 1.1.1)
+- **Sugerencias de auto-fix** para cada problema
 
-## Características Principales
+## Publicado en npm
+
+```bash
+npx audittest-vision https://cualquier-sitio.com
+```
+
+Disponible globalmente: [npmjs.com/package/audittest-vision](https://www.npmjs.com/package/audittest-vision)
+
+## Características
 
 | Feature | Descripción |
 |---------|-------------|
-| **CLI standalone** | Funciona sin APIs externas, 100% local con Puppeteer |
-| **WCAG 2.1 AA** | Evalúa criterios de accesibilidad reales |
-| **Auto-Fix** | Genera parches CSS/HTML para cada issue |
-| **CI/CD ready** | Exit code 1 en issues críticos, salida JSON |
-| **Chrome Extension** | UI integrada en el navegador |
-| **Git Hook** | Bloquea push si hay issues críticos |
+| **CLI standalone** | Funciona 100% local con Puppeteer, sin APIs externas |
+| **WCAG 2.1 AA** | 7 reglas de accesibilidad evaluadas automáticamente |
+| **Detección visual** | Analiza bounding boxes para detectar overflow y elementos fuera del viewport |
+| **Auto-Fix** | Genera sugerencias de CSS/HTML para corregir cada issue |
+| **CI/CD ready** | Exit code 1 en issues críticos + salida `--json` |
+| **Chrome Extension** | UI con botón flotante, badges de severidad, export a GitHub Issue |
+| **Git Hook** | Pre-push que bloquea deploy si hay issues críticos |
 | **Zero config** | Funciona out-of-the-box sin configuración |
 
 ## Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              AuditTest Vision                        │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ┌───────────┐  ┌───────────┐  ┌────────────┐     │
-│  │  Visual   │  │   WCAG    │  │  Auto-Fix  │     │
-│  │  Module   │  │  Module   │  │   Module   │     │
-│  │(Vision AI)│  │(Reglas)   │  │(AI+Reglas) │     │
-│  └─────┬─────┘  └─────┬─────┘  └─────┬──────┘     │
-│        └───────┬───────┴───────┬──────┘            │
-│                │               │                    │
-│         ┌──────┴──────┐ ┌─────┴──────┐            │
-│         │Audit Engine │ │  CLI Tool  │            │
-│         │(Orquestador)│ │ (Terminal) │            │
-│         └──────┬──────┘ └────────────┘            │
-│                │                                    │
-│         ┌──────┴──────┐                            │
-│         │   Chrome    │                            │
-│         │  Extension  │                            │
-│         └─────────────┘                            │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│               AuditTest Vision                        │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌────────────┐  ┌────────────┐  ┌─────────────┐   │
+│  │  Visual    │  │   WCAG     │  │  Auto-Fix   │   │
+│  │  Module    │  │  Module    │  │   Module    │   │
+│  │(Puppeteer) │  │ (Reglas)   │  │ (Sugerencias│   │
+│  └─────┬──────┘  └─────┬──────┘  └──────┬──────┘   │
+│        └───────┬────────┴────────┬───────┘          │
+│                │                 │                    │
+│         ┌──────┴──────┐  ┌──────┴──────┐           │
+│         │Audit Engine │  │  CLI Tool   │           │
+│         │(Orquestador)│  │ (Terminal)  │           │
+│         └──────┬──────┘  └─────────────┘           │
+│                │                                     │
+│         ┌──────┴──────┐                             │
+│         │   Chrome    │                             │
+│         │  Extension  │                             │
+│         └─────────────┘                             │
+└──────────────────────────────────────────────────────┘
 ```
 
 ## Uso
 
-### Modo CLI (Terminal)
+### CLI (Terminal) — Forma principal
 
 ```bash
-# Auditar una URL
+# Auditar cualquier URL pública
 npx audittest-vision https://google.com
 
-# Con sugerencias de auto-fix
+# Con sugerencias de cómo arreglar cada issue
 npx audittest-vision https://miapp.com --fix
 
-# Salida JSON (para pipelines CI/CD)
+# Salida JSON para pipelines CI/CD
 npx audittest-vision https://miapp.com --json
 
-# Guardar screenshot
+# Guardar screenshot de la página auditada
 npx audittest-vision https://miapp.com --screenshot
+
+# Auditar un archivo HTML local
+npx audittest-vision ./dist/index.html
 ```
 
-### Chrome Extension
+### Chrome Extension (UI visual)
 
-1. Compilar: `npm run package`
-2. Abrir `chrome://extensions/` → Modo desarrollador
-3. "Cargar sin empaquetar" → seleccionar `dist/extension/`
-4. Navegar a cualquier página y hacer click en el botón **Audit**
+1. Clonar repo y compilar: `npm install && npm run package`
+2. Abrir `chrome://extensions/` → activar Modo desarrollador
+3. "Cargar extensión sin empaquetar" → seleccionar `dist/extension/`
+4. Navegar a cualquier página → click en botón **Audit**
 
-### Git Hook (pre-push)
+### Git Hook (automatización pre-push)
 
 ```bash
 cp src/cli/git-hook-pre-push.sh .git/hooks/pre-push
 chmod +x .git/hooks/pre-push
 ```
 
-Bloquea el push si detecta issues críticos de accesibilidad.
-
-## Instalación
+## Instalación desde código fuente
 
 ```bash
-# Clonar
 git clone https://github.com/la00429/audit_project_.git
 cd audit_project_
-
-# Instalar dependencias
 npm install
-
-# Generar iconos de extensión
-npm run icons
-
-# Compilar todo
 npm run package
 ```
 
@@ -124,24 +127,25 @@ npm run package
 
 | Tecnología | Uso |
 |-----------|-----|
-| **TypeScript** | Lenguaje principal (strict mode) |
-| **Puppeteer** | Navegación headless y screenshots |
-| **Chrome Manifest V3** | Extension del navegador |
-| **Kiro IDE** | Desarrollo con SDD (Spec-Driven Development) |
-| **Node.js** | Runtime para CLI y build |
+| **TypeScript 5** | Lenguaje principal (strict mode) |
+| **Puppeteer 22** | Navegador headless para captura y análisis DOM |
+| **Chrome Manifest V3** | Extensión del navegador moderna |
+| **Kiro IDE** | Desarrollo con Spec-Driven Development (SDD) |
+| **Node.js** | Runtime para CLI |
+| **npm** | Distribución del paquete |
 
-## Uso de Kiro (Spec-Driven Development)
+## Desarrollo con Kiro (Spec-Driven Development)
 
-Este proyecto fue desarrollado íntegramente usando el flujo SDD de Kiro:
+Este proyecto fue construido íntegramente usando el flujo SDD de Kiro IDE:
 
 ```
 .kiro/
 ├── specs/audit-vision/
 │   ├── requirements.md    ← Requisitos funcionales (formato EARS)
 │   ├── design.md          ← Arquitectura y flujo de datos
-│   └── tasks.md           ← Checklist de implementación
+│   └── tasks.md           ← Checklist de implementación (27 tareas)
 ├── hooks/
-│   ├── validate-env.json  ← Valida API keys antes de tareas
+│   ├── validate-env.json  ← Valida config antes de tareas
 │   ├── lint-on-save.json  ← TypeScript check al guardar
 │   └── pre-push-audit-check.json ← Gate de calidad pre-push
 └── steering/
@@ -150,11 +154,11 @@ Este proyecto fue desarrollado íntegramente usando el flujo SDD de Kiro:
 
 ### Flujo SDD aplicado:
 
-1. **Requirements** → Definición EARS de cada funcionalidad
-2. **Design** → Arquitectura microkernel, interfaces TypeScript
-3. **Tasks** → Ejecución paso a paso verificable por Kiro
+1. **Requirements** → 6 requisitos funcionales + 4 NFRs en formato EARS
+2. **Design** → Arquitectura microkernel, interfaces TypeScript, flujo de datos
+3. **Tasks** → 27 tareas en 6 fases ejecutadas secuencialmente
 4. **Hooks** → Automatización de validaciones en cada paso
-5. **Steering** → Contexto persistente para consistencia
+5. **Steering** → Contexto persistente para consistencia del código
 
 ## Estructura del Proyecto
 
@@ -162,30 +166,33 @@ Este proyecto fue desarrollado íntegramente usando el flujo SDD de Kiro:
 audittest-vision/
 ├── src/
 │   ├── core/
-│   │   └── auditEngine.ts      # Orquestador central
+│   │   └── auditEngine.ts      # Orquestador central (microkernel)
 │   ├── modules/
-│   │   ├── visualModule.ts      # Análisis visual (Vision AI)
-│   │   ├── wcagModule.ts        # Reglas WCAG 2.1
-│   │   └── autoFixModule.ts     # Generador de parches
+│   │   ├── visualModule.ts      # Detección visual de errores de layout
+│   │   ├── wcagModule.ts        # Motor de reglas WCAG 2.1
+│   │   └── autoFixModule.ts     # Generador de sugerencias de fix
 │   ├── extension/
 │   │   ├── manifest.json        # Chrome Manifest V3
 │   │   ├── popup.html/ts        # UI del popup
-│   │   ├── content.ts           # Script de página
+│   │   ├── content.ts           # Script inyectado en páginas
 │   │   └── background.ts        # Service worker
 │   └── cli/
-│       ├── audittest.ts         # CLI standalone
+│       ├── audittest.ts         # CLI standalone (entry point)
 │       └── git-hook-pre-push.sh # Hook de git
 ├── scripts/                     # Build y utilidades
-├── .kiro/                       # Specs, hooks, steering
+├── .kiro/                       # Specs, hooks, steering (SDD)
 ├── audit-rules.spec.json        # Configuración de reglas
+├── docs/                        # Landing page (GitHub Pages)
 └── dist/                        # Build compilado
 ```
 
-## Demo
+## Demo y enlaces
 
-**Landing Page:** [https://la00429.github.io/audit_project_/](https://la00429.github.io/audit_project_/)
-
-**Repositorio:** [https://github.com/la00429/audit_project_](https://github.com/la00429/audit_project_)
+| Recurso | URL |
+|---------|-----|
+| **npm (producción)** | https://www.npmjs.com/package/audittest-vision |
+| **Repositorio** | https://github.com/la00429/audit_project_ |
+| **Landing Page** | https://la00429.github.io/audit_project_/ |
 
 ## Configuración Avanzada
 
@@ -193,8 +200,8 @@ Editar `audit-rules.spec.json` para personalizar:
 
 - Nivel WCAG (A, AA, AAA)
 - Habilitar/deshabilitar reglas específicas
-- Umbrales del quality gate
-- Permisos de auto-fix
+- Umbrales del quality gate para el git hook
+- Permisos de auto-fix (CSS, HTML, atributos)
 
 ## Autor
 
