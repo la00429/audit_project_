@@ -522,52 +522,56 @@ function generateHTMLReport(
   }).join('\n');
 
   return `<!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reporte — AuditTest Vision</title>
 <style>
-:root{--bg:#09090b;--s1:#18181b;--s2:#27272a;--tx:#fafafa;--tm:#a1a1aa;--purple:#7c3aed;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--r:10px}
+:root,[data-theme="dark"]{--bg:#09090b;--s1:#18181b;--s2:#27272a;--tx:#fafafa;--tm:#a1a1aa;--purple:#7c3aed;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--r:10px;--card:#18181b;--glow:.2}
+[data-theme="light"]{--bg:#ffffff;--s1:#f9fafb;--s2:#e5e7eb;--tx:#111827;--tm:#6b7280;--card:#f9fafb;--glow:.1}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--s1);border-bottom:1px solid var(--s2);position:sticky;top:0;z-index:1000;backdrop-filter:blur(12px)}
-.topbar h1{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:background .3s,color .3s}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--s1);border-bottom:1px solid var(--s2);position:sticky;top:0;z-index:1000}
+.topbar h1{font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:8px}
 .topbar h1 span{background:linear-gradient(135deg,var(--purple),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.topbar .meta{display:flex;gap:16px;font-size:.75rem;color:var(--tm)}
-.stats{display:flex;gap:12px;padding:20px 28px;border-bottom:1px solid var(--s2)}
-.stat{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--s2);border-radius:var(--r);padding:12px 20px;flex:1}
-.stat-num{font-size:1.6rem;font-weight:700}
-.stat-label{font-size:.7rem;color:var(--tm);text-transform:uppercase;letter-spacing:.04em}
-.main{display:grid;grid-template-columns:1fr 400px;height:calc(100vh - 140px)}
-.viewport{position:relative;overflow:auto;background:#050507;cursor:crosshair}
+.topbar .meta{display:flex;gap:14px;font-size:.72rem;color:var(--tm)}
+.theme-btn{background:var(--bg);border:1px solid var(--s2);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:.75rem;color:var(--tm);transition:all .2s}
+.theme-btn:hover{border-color:var(--purple);color:var(--purple)}
+.stats{display:flex;gap:10px;padding:16px 24px;border-bottom:1px solid var(--s2);flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--s2);border-radius:var(--r);padding:10px 18px;flex:1;min-width:100px}
+.stat-num{font-size:1.5rem;font-weight:700}
+.stat-label{font-size:.65rem;color:var(--tm);text-transform:uppercase;letter-spacing:.04em}
+.main{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 130px)}
+@media(max-width:900px){.main{grid-template-columns:1fr;height:auto}}
+.viewport{position:relative;overflow:auto;background:color-mix(in srgb,var(--bg) 95%,#000)}
 .viewport img{display:block;min-width:1280px}
-.marker{position:absolute;border:2px solid var(--c);border-radius:4px;opacity:.5;transition:all .25s;cursor:pointer}
-.marker:hover,.marker.active{opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent),0 0 24px color-mix(in srgb,var(--c) 20%,transparent)}
-.marker-label{position:absolute;top:-8px;right:-8px;background:var(--c);color:#fff;font-size:.6rem;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1}
-.sidebar{overflow-y:auto;border-left:1px solid var(--s2);padding:0}
-.sidebar-header{padding:16px 20px;border-bottom:1px solid var(--s2);font-size:.8rem;color:var(--tm);font-weight:500;position:sticky;top:0;background:var(--bg);z-index:10}
-.cards{padding:12px}
-.card{background:var(--s1);border:1px solid var(--s2);border-radius:var(--r);padding:16px;margin-bottom:10px;border-left:3px solid var(--accent);cursor:pointer;transition:all .2s}
-.card:hover,.card.active{background:#1f1f24;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.badge{font-size:.6rem;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent);color:#fff;letter-spacing:.04em}
-.card-id{font-size:.7rem;color:#52525b}
-.wcag{font-size:.65rem;background:#1e3a5f;color:var(--blue);padding:2px 7px;border-radius:4px;margin-left:auto}
-.card h3{font-size:.85rem;font-weight:600;margin-bottom:4px}
-.card p{font-size:.78rem;color:var(--tm);line-height:1.5}
-.sel{margin-top:8px}
-.sel code{font-size:.72rem;background:var(--s2);padding:3px 8px;border-radius:4px;color:#c4b5fd;font-family:monospace}
-.fix{margin-top:10px;padding:10px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:.75rem;color:var(--green);display:flex;align-items:flex-start;gap:8px;line-height:1.4}
+.marker{position:absolute;border:2px solid var(--c);border-radius:4px;opacity:.45;transition:all .25s;cursor:pointer}
+.marker:hover,.marker.active{opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 25%,transparent),0 0 20px color-mix(in srgb,var(--c) calc(var(--glow) * 100%),transparent)}
+.marker-label{position:absolute;top:-9px;right:-9px;background:var(--c);color:#fff;font-size:.58rem;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1}
+.sidebar{overflow-y:auto;border-left:1px solid var(--s2);background:var(--bg)}
+.sidebar-header{padding:14px 18px;border-bottom:1px solid var(--s2);font-size:.78rem;color:var(--tm);font-weight:500;position:sticky;top:0;background:var(--bg);z-index:10}
+.cards{padding:10px}
+.card{background:var(--card);border:1px solid var(--s2);border-radius:var(--r);padding:14px;margin-bottom:8px;border-left:3px solid var(--accent);cursor:pointer;transition:all .2s}
+.card:hover,.card.active{background:color-mix(in srgb,var(--card) 90%,var(--accent));border-color:var(--accent)}
+.card-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.badge{font-size:.58rem;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--accent);color:#fff;letter-spacing:.03em}
+.card-id{font-size:.68rem;color:var(--tm);opacity:.6}
+.wcag{font-size:.62rem;background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);padding:2px 6px;border-radius:4px;margin-left:auto}
+.card h3{font-size:.82rem;font-weight:600;margin-bottom:4px}
+.card p{font-size:.75rem;color:var(--tm);line-height:1.5}
+.sel{margin-top:6px}
+.sel code{font-size:.7rem;background:var(--s2);padding:2px 7px;border-radius:4px;color:var(--purple);font-family:monospace}
+.fix{margin-top:8px;padding:8px 10px;background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 20%,transparent);border-radius:6px;font-size:.72rem;color:var(--green);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
 .empty{text-align:center;padding:60px 20px}
-.empty svg{margin-bottom:16px;opacity:.3}
-.empty p{color:var(--green);font-weight:500}
+.empty p{color:var(--green);font-weight:500;font-size:1rem}
 .empty span{display:block;color:var(--tm);font-size:.8rem;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1><span>AuditTest Vision</span> Reporte</h1>
-  <div class="meta"><span>${url}</span><span>${new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'})} ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span><span>${durationMs}ms</span></div>
+  <h1><span>AuditTest Vision</span></h1>
+  <div class="meta"><span>${url}</span><span>${new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'})}</span><span>${durationMs}ms</span></div>
+  <button class="theme-btn" onclick="toggleTheme()" id="tbtn">🌙 Dark</button>
 </div>
 <div class="stats">
   <div class="stat"><div><div class="stat-num" style="color:var(--purple)">${issues.length}</div><div class="stat-label">Total</div></div></div>
@@ -584,11 +588,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div class="sidebar">
     <div class="sidebar-header">${issues.length} problema${issues.length !== 1 ? 's' : ''} detectado${issues.length !== 1 ? 's' : ''}</div>
     <div class="cards">
-      ${issues.length === 0 ? `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>Sin problemas detectados</p><span>La pagina cumple las reglas evaluadas</span></div>` : issueCards}
+      ${issues.length === 0 ? `<div class="empty"><p>✓ Sin problemas detectados</p><span>La pagina cumple las reglas evaluadas</span></div>` : issueCards}
     </div>
   </div>
 </div>
 <script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);document.getElementById('tbtn').textContent=t==='dark'?'🌙 Dark':'☀️ Light'}
 document.querySelectorAll('.card').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.card,.marker').forEach(x=>{x.classList.remove('active')});c.classList.add('active');const m=document.querySelector('.marker[data-id="'+c.dataset.id+'"]');if(m){m.classList.add('active');m.scrollIntoView({behavior:'smooth',block:'center'})}})});
 document.querySelectorAll('.marker').forEach(m=>{m.addEventListener('click',()=>{document.querySelectorAll('.card,.marker').forEach(x=>{x.classList.remove('active')});m.classList.add('active');const c=document.querySelector('.card[data-id="'+m.dataset.id+'"]');if(c){c.classList.add('active');c.scrollIntoView({behavior:'smooth',block:'center'})}})});
 </script>

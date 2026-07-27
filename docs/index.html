@@ -1,83 +1,68 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AuditTest Vision — Auditoria de Accesibilidad Automatizada</title>
 <style>
-:root{--purple:#7c3aed;--purple-light:#a78bfa;--bg:#09090b;--surface:#18181b;--surface-2:#27272a;--text:#fafafa;--text-muted:#a1a1aa;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--blue:#3b82f6;--radius:12px}
+:root,[data-theme="dark"]{--bg:#09090b;--bg2:#18181b;--border:#27272a;--tx:#fafafa;--tm:#a1a1aa;--purple:#7c3aed;--purple-l:#a78bfa;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--blue:#3b82f6;--glow:rgba(124,58,237,.15);--card-bg:#18181b;--code-bg:#0c0c0f;--hero-grad:linear-gradient(135deg,#fff 30%,#a78bfa)}
+[data-theme="light"]{--bg:#ffffff;--bg2:#f4f4f5;--border:#e4e4e7;--tx:#18181b;--tm:#52525b;--glow:rgba(124,58,237,.08);--card-bg:#f9fafb;--code-bg:#f4f4f5;--hero-grad:linear-gradient(135deg,#18181b 30%,#7c3aed)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
-a{color:var(--purple-light);text-decoration:none;transition:color .2s}
-a:hover{color:#c4b5fd}
-
-/* Hero */
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;overflow-x:hidden;transition:background .3s,color .3s}
+a{color:var(--purple-l);text-decoration:none;transition:color .2s}a:hover{color:#c4b5fd}
+.theme-toggle{position:fixed;top:20px;right:20px;z-index:999;background:var(--card-bg);border:1px solid var(--border);border-radius:50px;padding:8px 14px;cursor:pointer;font-size:.85rem;transition:all .2s;display:flex;align-items:center;gap:6px}
+.theme-toggle:hover{border-color:var(--purple)}
 .hero{min-height:90vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 24px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 70%);pointer-events:none}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,var(--glow) 0%,transparent 70%);pointer-events:none}
 .hero-content{position:relative;z-index:1;max-width:720px}
-.pill{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--surface-2);padding:6px 16px;border-radius:100px;font-size:.8rem;color:var(--text-muted);margin-bottom:24px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);padding:6px 16px;border-radius:100px;font-size:.8rem;color:var(--tm);margin-bottom:24px}
 .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:800;letter-spacing:-.03em;margin-bottom:16px;background:linear-gradient(135deg,#fff 30%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{font-size:1.15rem;color:var(--text-muted);max-width:540px;margin:0 auto 36px}
+.hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:800;letter-spacing:-.03em;margin-bottom:16px;background:var(--hero-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.15rem;color:var(--tm);max-width:540px;margin:0 auto 36px}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn{padding:14px 28px;border-radius:8px;font-size:.95rem;font-weight:600;transition:all .2s;cursor:pointer;border:none}
+.btn{padding:14px 28px;border-radius:8px;font-size:.95rem;font-weight:600;transition:all .2s;cursor:pointer;border:none;text-decoration:none}
 .btn-primary{background:var(--purple);color:#fff;box-shadow:0 4px 24px rgba(124,58,237,.3)}
-.btn-primary:hover{background:#6d28d9;transform:translateY(-1px);box-shadow:0 8px 32px rgba(124,58,237,.4)}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--surface-2)}
-.btn-outline:hover{border-color:var(--purple-light);color:var(--purple-light)}
-
-/* Terminal */
-.terminal{margin:48px auto 0;max-width:580px;background:#0c0c0f;border:1px solid var(--surface-2);border-radius:var(--radius);overflow:hidden;text-align:left}
-.terminal-bar{display:flex;gap:6px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--surface-2)}
-.terminal-bar span{width:10px;height:10px;border-radius:50%;background:var(--surface-2)}
-.terminal-bar span:first-child{background:var(--red)}
-.terminal-bar span:nth-child(2){background:var(--yellow)}
-.terminal-bar span:nth-child(3){background:var(--green)}
-.terminal-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.8;color:var(--text-muted)}
-.terminal-body .cmd{color:var(--green)}
-.terminal-body .out{color:var(--purple-light)}
-.terminal-body .dim{color:#52525b}
-
-/* Sections */
+.btn-primary:hover{background:#6d28d9;transform:translateY(-1px);box-shadow:0 8px 32px rgba(124,58,237,.4);color:#fff}
+.btn-outline{background:transparent;color:var(--tx);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--purple-l);color:var(--purple-l)}
+.terminal{margin:48px auto 0;max-width:580px;background:var(--code-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:left}
+.terminal-bar{display:flex;gap:6px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.terminal-bar span{width:10px;height:10px;border-radius:50%}
+.terminal-bar span:nth-child(1){background:var(--red)}.terminal-bar span:nth-child(2){background:var(--yellow)}.terminal-bar span:nth-child(3){background:var(--green)}
+.terminal-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.8;color:var(--tm)}
+.terminal-body .cmd{color:var(--green)}.terminal-body .out{color:var(--purple-l)}.terminal-body .dim{color:var(--tm);opacity:.6}
 section{padding:100px 24px}
 .container{max-width:1000px;margin:0 auto}
-.section-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--purple-light);margin-bottom:12px}
+.section-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--purple-l);margin-bottom:12px}
 .section-title{font-size:2rem;font-weight:700;margin-bottom:16px;letter-spacing:-.02em}
-.section-desc{color:var(--text-muted);max-width:600px;margin-bottom:48px}
-
-/* Features */
+.section-desc{color:var(--tm);max-width:600px;margin-bottom:48px}
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.feature-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius);padding:28px;transition:border-color .2s}
+.feature-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:28px;transition:border-color .2s}
 .feature-card:hover{border-color:var(--purple)}
 .feature-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px}
 .feature-card h3{font-size:1rem;font-weight:600;margin-bottom:8px}
-.feature-card p{font-size:.85rem;color:var(--text-muted);line-height:1.6}
-
-/* How it works */
+.feature-card p{font-size:.85rem;color:var(--tm);line-height:1.6}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;counter-reset:step}
-.step{position:relative;padding:24px;background:var(--surface);border:1px solid var(--surface-2);border-radius:var(--radius)}
+.step{position:relative;padding:24px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px}
 .step::before{counter-increment:step;content:counter(step);position:absolute;top:-12px;left:20px;background:var(--purple);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
-.step h4{font-size:.9rem;margin-bottom:6px;margin-top:4px}
-.step p{font-size:.8rem;color:var(--text-muted)}
-
-/* Tech */
+.step h4{font-size:.9rem;margin-bottom:6px;margin-top:4px}.step p{font-size:.8rem;color:var(--tm)}
 .tech-list{display:flex;flex-wrap:wrap;gap:10px}
-.tech-tag{background:var(--surface);border:1px solid var(--surface-2);padding:8px 16px;border-radius:8px;font-size:.82rem;color:var(--text-muted);transition:all .2s}
-.tech-tag:hover{border-color:var(--purple);color:var(--text)}
-
-/* CTA */
-.cta-section{text-align:center;padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(124,58,237,.05))}
+.tech-tag{background:var(--card-bg);border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:.82rem;color:var(--tm);transition:all .2s}
+.tech-tag:hover{border-color:var(--purple);color:var(--tx)}
+.cta-section{text-align:center;padding:80px 24px}
 .cta-section h2{font-size:1.8rem;font-weight:700;margin-bottom:12px}
-.cta-section p{color:var(--text-muted);margin-bottom:28px}
-.cta-code{display:inline-block;background:var(--surface);border:1px solid var(--surface-2);padding:12px 24px;border-radius:8px;font-family:monospace;font-size:.9rem;color:var(--green)}
-
-/* Footer */
-footer{padding:32px 24px;text-align:center;border-top:1px solid var(--surface-2);color:#52525b;font-size:.8rem}
-footer a{color:var(--purple-light)}
+.cta-section p{color:var(--tm);margin-bottom:28px}
+.cta-code{display:inline-block;background:var(--card-bg);border:1px solid var(--border);padding:12px 24px;border-radius:8px;font-family:monospace;font-size:.9rem;color:var(--green)}
+footer{padding:32px 24px;text-align:center;border-top:1px solid var(--border);color:var(--tm);font-size:.8rem}
+footer a{color:var(--purple-l)}
+.bg-alt{background:var(--bg2)}
 </style>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+  <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+</button>
 
 <section class="hero">
   <div class="hero-content">
@@ -97,7 +82,7 @@ footer a{color:var(--purple-light)}
         <div class="dim">  ► Ejecutando auditoria WCAG + Visual...</div>
         <div class="out">  ► Reporte HTML generado: audittest-report.html</div>
         <br>
-        <div>  Resumen: <span style="color:#ef4444">2 criticos</span> · <span style="color:#eab308">3 mayores</span> · <span style="color:#3b82f6">1 menor</span></div>
+        <div>  Resumen: <span style="color:var(--red)">2 criticos</span> · <span style="color:var(--yellow)">3 mayores</span> · <span style="color:var(--blue)">1 menor</span></div>
       </div>
     </div>
   </div>
@@ -107,43 +92,19 @@ footer a{color:var(--purple-light)}
   <div class="container">
     <div class="section-label">Funcionalidades</div>
     <h2 class="section-title">Todo lo que necesitas para auditar</h2>
-    <p class="section-desc">Siete reglas WCAG 2.1 evaluadas automaticamente, deteccion visual de errores de layout, y reportes que puedes compartir.</p>
+    <p class="section-desc">Siete reglas WCAG 2.1 evaluadas automaticamente, deteccion visual de errores de layout, y reportes interactivos.</p>
     <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#7c3aed22">🔍</div>
-        <h3>WCAG 2.1 Nivel AA</h3>
-        <p>Contraste, alt text, labels, headings, landmarks y botones sin texto accesible.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#3b82f622">📐</div>
-        <h3>Deteccion visual</h3>
-        <p>Analiza bounding boxes del DOM para encontrar overflow y elementos fuera del viewport.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#22c55e22">📊</div>
-        <h3>Reporte HTML interactivo</h3>
-        <p>Screenshot anotado con marcadores clickeables. Abre en tu navegador y navega los issues.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#eab30822">🔧</div>
-        <h3>Sugerencias de fix</h3>
-        <p>Cada issue incluye una sugerencia concreta de CSS/HTML para corregirlo.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#ef444422">🚫</div>
-        <h3>CI/CD y Git Hook</h3>
-        <p>Exit code 1 en criticos, salida JSON, y hook pre-push que bloquea deploys rotos.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#06b6d422">⚡</div>
-        <h3>100% local</h3>
-        <p>Puppeteer headless en tu maquina. Sin APIs externas, sin latencia, sin costos.</p>
-      </div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(124,58,237,.1)">🔍</div><h3>WCAG 2.1 Nivel AA</h3><p>Contraste, alt text, labels, headings, landmarks y botones sin texto accesible.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(59,130,246,.1)">📐</div><h3>Deteccion visual</h3><p>Analiza bounding boxes del DOM para encontrar overflow y elementos fuera del viewport.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(34,197,94,.1)">📊</div><h3>Reporte HTML interactivo</h3><p>Screenshot anotado con marcadores clickeables. Light y dark mode incluido.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(234,179,8,.1)">🔧</div><h3>Sugerencias de fix</h3><p>Cada issue incluye una sugerencia concreta de CSS/HTML para corregirlo.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(239,68,68,.1)">🚫</div><h3>CI/CD y Git Hook</h3><p>Exit code 1 en criticos, salida JSON, hook pre-push que bloquea deploys rotos.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(6,182,212,.1)">⚡</div><h3>100% local</h3><p>Puppeteer headless en tu maquina. Sin APIs externas, sin latencia, sin costos.</p></div>
     </div>
   </div>
 </section>
 
-<section style="background:var(--surface)">
+<section class="bg-alt">
   <div class="container">
     <div class="section-label">Como funciona</div>
     <h2 class="section-title">Tres pasos, un resultado</h2>
@@ -151,8 +112,8 @@ footer a{color:var(--purple-light)}
     <div class="steps">
       <div class="step"><h4>Navega la pagina</h4><p>Puppeteer abre la URL en un navegador headless y toma un screenshot.</p></div>
       <div class="step"><h4>Extrae el DOM</h4><p>Recopila bounding boxes, estilos computados y atributos de hasta 500 elementos.</p></div>
-      <div class="step"><h4>Ejecuta las reglas</h4><p>El motor evalua 7 reglas WCAG + deteccion visual contra los metadatos extraidos.</p></div>
-      <div class="step"><h4>Genera el reporte</h4><p>HTML interactivo con screenshot anotado, o JSON para tu pipeline de CI/CD.</p></div>
+      <div class="step"><h4>Ejecuta las reglas</h4><p>El motor evalua 7 reglas WCAG + deteccion visual contra los metadatos.</p></div>
+      <div class="step"><h4>Genera el reporte</h4><p>HTML interactivo con screenshot anotado, o JSON para tu pipeline CI/CD.</p></div>
     </div>
   </div>
 </section>
@@ -162,13 +123,7 @@ footer a{color:var(--purple-light)}
     <div class="section-label">Stack</div>
     <h2 class="section-title">Tecnologias</h2>
     <div class="tech-list">
-      <span class="tech-tag">TypeScript 5</span>
-      <span class="tech-tag">Puppeteer 22</span>
-      <span class="tech-tag">Node.js</span>
-      <span class="tech-tag">Chrome Manifest V3</span>
-      <span class="tech-tag">Kiro IDE (SDD)</span>
-      <span class="tech-tag">WCAG 2.1</span>
-      <span class="tech-tag">npm</span>
+      <span class="tech-tag">TypeScript 5</span><span class="tech-tag">Puppeteer 22</span><span class="tech-tag">Node.js</span><span class="tech-tag">Chrome Manifest V3</span><span class="tech-tag">Kiro IDE (SDD)</span><span class="tech-tag">WCAG 2.1</span><span class="tech-tag">npm</span>
     </div>
   </div>
 </section>
@@ -183,5 +138,10 @@ footer a{color:var(--purple-light)}
   <p>AuditTest Vision — <a href="https://github.com/la00429/audit_project_">GitHub</a> · <a href="https://www.npmjs.com/package/audittest-vision">npm</a></p>
   <p style="margin-top:6px">Hackathon Codigo Facilito + Kiro 2026 — Reto 4</p>
 </footer>
+
+<script>
+function toggleTheme(){const h=document.documentElement;const t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);document.getElementById('theme-icon').textContent=t==='dark'?'🌙':'☀️';document.getElementById('theme-text').textContent=t==='dark'?'Dark':'Light';localStorage.setItem('theme',t)}
+(function(){const s=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',s);document.getElementById('theme-icon').textContent=s==='dark'?'🌙':'☀️';document.getElementById('theme-text').textContent=s==='dark'?'Dark':'Light'})();
+</script>
 </body>
 </html>
