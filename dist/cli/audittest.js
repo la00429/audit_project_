@@ -419,13 +419,13 @@ function generateHTMLReport(issues, url, durationMs, screenshotBase64, elements)
     const critical = issues.filter(i => i.severity === 'critical').length;
     const major = issues.filter(i => i.severity === 'major').length;
     const minor = issues.filter(i => i.severity === 'minor').length;
+    const passed = 7 - new Set(issues.map(i => i.title)).size;
     const severityColor = {
         critical: '#ef4444',
         major: '#f59e0b',
         minor: '#3b82f6',
         info: '#71717a',
     };
-    // Generate overlay markers for issues with bounding boxes
     const markers = issues
         .filter(i => i.selector)
         .map(issue => {
@@ -434,125 +434,89 @@ function generateHTMLReport(issues, url, durationMs, screenshotBase64, elements)
             return '';
         const { x, y, width, height } = el.boundingBox;
         const color = severityColor[issue.severity] || '#71717a';
-        return `<div class="marker" style="left:${x}px;top:${y}px;width:${width}px;height:${height}px;border-color:${color}" data-id="${issue.id}" title="${issue.title}"><span class="marker-badge" style="background:${color}">${issue.id}</span></div>`;
+        return `<div class="marker" style="left:${x}px;top:${y}px;width:${width}px;height:${height}px;--c:${color}" data-id="${issue.id}"><span class="marker-label">${issue.id}</span></div>`;
     })
         .join('\n');
-    // Generate issue cards
     const issueCards = issues.map(issue => {
         const color = severityColor[issue.severity] || '#71717a';
-        return `
-      <div class="issue-card" data-id="${issue.id}" style="border-left-color:${color}">
-        <div class="issue-header">
-          <span class="severity-badge" style="background:${color}">${issue.severity.toUpperCase()}</span>
-          <span class="issue-id">${issue.id}</span>
-        </div>
-        <h3>${issue.title}</h3>
-        <p>${issue.description}</p>
-        ${issue.selector ? `<code class="selector">${issue.selector}</code>` : ''}
-        ${issue.wcagCriterion ? `<span class="wcag-tag">WCAG ${issue.wcagCriterion}</span>` : ''}
-        ${issue.fix ? `<div class="fix-suggestion"><strong>Fix:</strong> ${issue.fix}</div>` : ''}
-      </div>`;
+        return `<div class="card" data-id="${issue.id}" style="--accent:${color}">
+      <div class="card-top"><span class="badge">${issue.severity}</span><span class="card-id">${issue.id}</span>${issue.wcagCriterion ? `<span class="wcag">WCAG ${issue.wcagCriterion}</span>` : ''}</div>
+      <h3>${issue.title}</h3>
+      <p>${issue.description}</p>
+      ${issue.selector ? `<div class="sel"><code>${issue.selector}</code></div>` : ''}
+      ${issue.fix ? `<div class="fix"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7-7H1m22 0h-4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83m0-14.14l-2.83 2.83m-8.48 8.48l-2.83 2.83"/></svg>${issue.fix}</div>` : ''}
+    </div>`;
     }).join('\n');
     return `<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AuditTest Vision Report — ${url}</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reporte — AuditTest Vision</title>
 <style>
+:root{--bg:#09090b;--s1:#18181b;--s2:#27272a;--tx:#fafafa;--tm:#a1a1aa;--purple:#7c3aed;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--r:10px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f14;color:#e4e4e7}
-.header{background:linear-gradient(135deg,#1a1025,#0f0f14);padding:32px 40px;border-bottom:1px solid #27272a}
-.header h1{font-size:1.8rem;background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-.header .meta{color:#71717a;font-size:.85rem}
-.header .meta span{margin-right:16px}
-.summary{display:flex;gap:16px;padding:24px 40px;border-bottom:1px solid #27272a}
-.summary-card{background:#1c1c22;border-radius:10px;padding:16px 24px;text-align:center;min-width:120px}
-.summary-card .count{font-size:2rem;font-weight:700}
-.summary-card .label{font-size:.75rem;color:#71717a;text-transform:uppercase;margin-top:4px}
-.count-critical{color:#ef4444}
-.count-major{color:#f59e0b}
-.count-minor{color:#3b82f6}
-.count-total{color:#a78bfa}
-.layout{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 200px)}
-.screenshot-panel{position:relative;overflow:auto;background:#0a0a0e;border-right:1px solid #27272a}
-.screenshot-panel img{display:block}
-.marker{position:absolute;border:2px solid;border-radius:3px;cursor:pointer;transition:all .2s;opacity:.7}
-.marker:hover{opacity:1;z-index:100;box-shadow:0 0 20px rgba(99,102,241,.5)}
-.marker-badge{position:absolute;top:-10px;left:-2px;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap}
-.issues-panel{overflow-y:auto;padding:20px;background:#0f0f14}
-.issues-panel h2{font-size:1rem;color:#a1a1aa;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #27272a}
-.issue-card{background:#1c1c22;border-radius:8px;padding:16px;margin-bottom:12px;border-left:3px solid;cursor:pointer;transition:background .2s}
-.issue-card:hover,.issue-card.active{background:#252530}
-.issue-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.severity-badge{color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px}
-.issue-id{color:#52525b;font-size:.75rem}
-.issue-card h3{font-size:.9rem;color:#fff;margin-bottom:6px}
-.issue-card p{font-size:.8rem;color:#a1a1aa;line-height:1.5;margin-bottom:8px}
-.issue-card code.selector{display:inline-block;background:#27272a;padding:2px 8px;border-radius:4px;font-size:.75rem;color:#c4b5fd}
-.wcag-tag{display:inline-block;background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:.7rem;margin-left:8px}
-.fix-suggestion{margin-top:10px;padding:10px;background:#0f2d1a;border:1px solid #16a34a33;border-radius:6px;font-size:.8rem;color:#4ade80}
-.no-issues{text-align:center;padding:60px 20px;color:#4ade80;font-size:1.1rem}
-.footer{padding:16px 40px;text-align:center;color:#3f3f46;font-size:.75rem;border-top:1px solid #27272a}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--s1);border-bottom:1px solid var(--s2);position:sticky;top:0;z-index:1000;backdrop-filter:blur(12px)}
+.topbar h1{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.topbar h1 span{background:linear-gradient(135deg,var(--purple),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar .meta{display:flex;gap:16px;font-size:.75rem;color:var(--tm)}
+.stats{display:flex;gap:12px;padding:20px 28px;border-bottom:1px solid var(--s2)}
+.stat{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--s2);border-radius:var(--r);padding:12px 20px;flex:1}
+.stat-num{font-size:1.6rem;font-weight:700}
+.stat-label{font-size:.7rem;color:var(--tm);text-transform:uppercase;letter-spacing:.04em}
+.main{display:grid;grid-template-columns:1fr 400px;height:calc(100vh - 140px)}
+.viewport{position:relative;overflow:auto;background:#050507;cursor:crosshair}
+.viewport img{display:block;min-width:1280px}
+.marker{position:absolute;border:2px solid var(--c);border-radius:4px;opacity:.5;transition:all .25s;cursor:pointer}
+.marker:hover,.marker.active{opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent),0 0 24px color-mix(in srgb,var(--c) 20%,transparent)}
+.marker-label{position:absolute;top:-8px;right:-8px;background:var(--c);color:#fff;font-size:.6rem;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1}
+.sidebar{overflow-y:auto;border-left:1px solid var(--s2);padding:0}
+.sidebar-header{padding:16px 20px;border-bottom:1px solid var(--s2);font-size:.8rem;color:var(--tm);font-weight:500;position:sticky;top:0;background:var(--bg);z-index:10}
+.cards{padding:12px}
+.card{background:var(--s1);border:1px solid var(--s2);border-radius:var(--r);padding:16px;margin-bottom:10px;border-left:3px solid var(--accent);cursor:pointer;transition:all .2s}
+.card:hover,.card.active{background:#1f1f24;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.badge{font-size:.6rem;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--accent);color:#fff;letter-spacing:.04em}
+.card-id{font-size:.7rem;color:#52525b}
+.wcag{font-size:.65rem;background:#1e3a5f;color:var(--blue);padding:2px 7px;border-radius:4px;margin-left:auto}
+.card h3{font-size:.85rem;font-weight:600;margin-bottom:4px}
+.card p{font-size:.78rem;color:var(--tm);line-height:1.5}
+.sel{margin-top:8px}
+.sel code{font-size:.72rem;background:var(--s2);padding:3px 8px;border-radius:4px;color:#c4b5fd;font-family:monospace}
+.fix{margin-top:10px;padding:10px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:.75rem;color:var(--green);display:flex;align-items:flex-start;gap:8px;line-height:1.4}
+.empty{text-align:center;padding:60px 20px}
+.empty svg{margin-bottom:16px;opacity:.3}
+.empty p{color:var(--green);font-weight:500}
+.empty span{display:block;color:var(--tm);font-size:.8rem;margin-top:6px}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>AuditTest Vision — Reporte de Auditoria</h1>
-  <div class="meta">
-    <span>URL: ${url}</span>
-    <span>Fecha: ${new Date().toLocaleString('es-ES')}</span>
-    <span>Duracion: ${durationMs}ms</span>
-  </div>
+<div class="topbar">
+  <h1><span>AuditTest Vision</span> Reporte</h1>
+  <div class="meta"><span>${url}</span><span>${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })} ${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span><span>${durationMs}ms</span></div>
 </div>
-
-<div class="summary">
-  <div class="summary-card"><div class="count count-total">${issues.length}</div><div class="label">Total Issues</div></div>
-  <div class="summary-card"><div class="count count-critical">${critical}</div><div class="label">Criticos</div></div>
-  <div class="summary-card"><div class="count count-major">${major}</div><div class="label">Mayores</div></div>
-  <div class="summary-card"><div class="count count-minor">${minor}</div><div class="label">Menores</div></div>
+<div class="stats">
+  <div class="stat"><div><div class="stat-num" style="color:var(--purple)">${issues.length}</div><div class="stat-label">Total</div></div></div>
+  <div class="stat"><div><div class="stat-num" style="color:var(--red)">${critical}</div><div class="stat-label">Criticos</div></div></div>
+  <div class="stat"><div><div class="stat-num" style="color:var(--yellow)">${major}</div><div class="stat-label">Mayores</div></div></div>
+  <div class="stat"><div><div class="stat-num" style="color:var(--blue)">${minor}</div><div class="stat-label">Menores</div></div></div>
+  <div class="stat"><div><div class="stat-num" style="color:var(--green)">${passed}</div><div class="stat-label">Pasaron</div></div></div>
 </div>
-
-<div class="layout">
-  <div class="screenshot-panel">
-    ${screenshotBase64 ? `<img src="data:image/png;base64,${screenshotBase64}" alt="Screenshot de la pagina auditada">` : '<p style="padding:40px;color:#52525b">Screenshot no disponible</p>'}
+<div class="main">
+  <div class="viewport">
+    ${screenshotBase64 ? `<img src="data:image/png;base64,${screenshotBase64}" alt="Screenshot">` : '<div style="padding:40px;color:var(--tm)">Sin screenshot</div>'}
     ${markers}
   </div>
-  <div class="issues-panel">
-    <h2>Problemas Detectados (${issues.length})</h2>
-    ${issues.length === 0 ? '<div class="no-issues">Sin problemas detectados. La pagina cumple las reglas evaluadas.</div>' : issueCards}
+  <div class="sidebar">
+    <div class="sidebar-header">${issues.length} problema${issues.length !== 1 ? 's' : ''} detectado${issues.length !== 1 ? 's' : ''}</div>
+    <div class="cards">
+      ${issues.length === 0 ? `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>Sin problemas detectados</p><span>La pagina cumple las reglas evaluadas</span></div>` : issueCards}
+    </div>
   </div>
 </div>
-
-<div class="footer">Generado por AuditTest Vision v1.0.0 — npx audittest-vision</div>
-
 <script>
-// Interactive: highlight markers when clicking issue cards
-document.querySelectorAll('.issue-card').forEach(card => {
-  card.addEventListener('click', () => {
-    const id = card.getAttribute('data-id');
-    document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    const marker = document.querySelector('.marker[data-id="'+id+'"]');
-    if (marker) {
-      marker.style.opacity = '1';
-      marker.style.boxShadow = '0 0 20px rgba(99,102,241,.8)';
-      marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => { marker.style.boxShadow = ''; marker.style.opacity = ''; }, 2000);
-    }
-  });
-});
-document.querySelectorAll('.marker').forEach(marker => {
-  marker.addEventListener('click', () => {
-    const id = marker.getAttribute('data-id');
-    const card = document.querySelector('.issue-card[data-id="'+id+'"]');
-    if (card) {
-      document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
-});
+document.querySelectorAll('.card').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.card,.marker').forEach(x=>{x.classList.remove('active')});c.classList.add('active');const m=document.querySelector('.marker[data-id="'+c.dataset.id+'"]');if(m){m.classList.add('active');m.scrollIntoView({behavior:'smooth',block:'center'})}})});
+document.querySelectorAll('.marker').forEach(m=>{m.addEventListener('click',()=>{document.querySelectorAll('.card,.marker').forEach(x=>{x.classList.remove('active')});m.classList.add('active');const c=document.querySelector('.card[data-id="'+m.dataset.id+'"]');if(c){c.classList.add('active');c.scrollIntoView({behavior:'smooth',block:'center'})}})});
 </script>
 </body>
 </html>`;
