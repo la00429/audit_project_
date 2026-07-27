@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Enforce Audit Rules Before Push",
+      "trigger": "PreToolUse",
+      "description": "Validates audit-rules.spec.json configuration and checks for critical issues before any git push operation",
+      "matcher": "execute_pwsh",
+      "action": {
+        "type": "command",
+        "command": "powershell -Command \"$input = [Console]::In.ReadToEnd(); if ($input -match 'git push') { if (Test-Path 'audit-rules.spec.json') { $config = Get-Content 'audit-rules.spec.json' | ConvertFrom-Json; if ($config.gates.prePush.enabled -eq $true) { Write-Host '{\\\"hookSpecificOutput\\\":{\\\"permissionDecision\\\":\\\"ask\\\",\\\"permissionDecisionReason\\\":\\\"audit-rules.spec.json has pre-push gate enabled. Run audit before pushing.\\\"}}'; exit 0 } else { Write-Host 'Pre-push gate disabled in config.'; exit 0 } } else { Write-Error 'audit-rules.spec.json not found. Cannot validate push.'; exit 0 } } else { exit 0 }\"",
+        "timeout": 10
+      }
+    }
+  ]
+}

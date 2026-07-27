@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Validate API Keys Before Task Execution",
+      "trigger": "PreTaskExec",
+      "description": "Checks that required .env API keys (AUDITTEST_API_KEY) are present before executing tasks that make LLM calls",
+      "action": {
+        "type": "command",
+        "command": "powershell -Command \"if (Test-Path '.env') { $content = Get-Content '.env' -Raw; if ($content -match 'AUDITTEST_API_KEY=.+') { Write-Host 'API key found in .env'; exit 0 } else { Write-Error 'AUDITTEST_API_KEY not set in .env file. Add it before running LLM tasks.'; exit 2 } } else { Write-Error '.env file not found. Create it with AUDITTEST_API_KEY=your_key'; exit 2 }\""
+      }
+    }
+  ]
+}
