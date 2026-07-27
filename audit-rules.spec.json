@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "description": "Central configuration for AuditTest Vision audit rules and quality gates",
+
+  "wcag": {
+    "level": "AA",
+    "rules": {
+      "color-contrast": { "enabled": true, "level": "AA", "threshold": 4.5 },
+      "missing-alt": { "enabled": true, "level": "A" },
+      "missing-label": { "enabled": true, "level": "A" },
+      "heading-order": { "enabled": true, "level": "A" },
+      "missing-landmark": { "enabled": true, "level": "A" }
+    }
+  },
+
+  "visual": {
+    "enabled": true,
+    "checks": {
+      "overlap-detection": true,
+      "alignment-check": true,
+      "overflow-detection": true,
+      "broken-images": true,
+      "viewport-bounds": true
+    },
+    "viewport": { "width": 1280, "height": 720 }
+  },
+
+  "autoFix": {
+    "enabled": true,
+    "maxConfidence": 0.8,
+    "allowHtmlChanges": false,
+    "allowCssChanges": true,
+    "allowAttributeChanges": true
+  },
+
+  "gates": {
+    "prePush": {
+      "enabled": true,
+      "maxCritical": 0,
+      "maxMajor": 5,
+      "blockOnFailure": true
+    },
+    "preMerge": {
+      "enabled": false,
+      "maxCritical": 0,
+      "maxMajor": 0
+    }
+  },
+
+  "reporting": {
+    "format": "json",
+    "outputDir": "./audit-reports",
+    "includeScreenshots": true,
+    "githubIssueTemplate": true
+  }
+}

@@ -1,0 +1,30 @@
+# AuditTest Vision — Kiro Ignore
+# Exclude heavy files to minimize Kiro credit usage
+
+# Screenshot caches (can be large binary blobs)
+.screenshots/
+tmp/
+*.screenshot.png
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+
+# Binary test recordings
+recordings/
+*.webm
+*.mp4
+
+# Dependencies (already indexed by package.json)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Git internals
+.git/
+
+# Logs
+*.log
