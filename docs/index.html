@@ -82,7 +82,14 @@ footer a{color:var(--purple-l)}
         <div class="dim">  ► Ejecutando auditoria WCAG + Visual...</div>
         <div class="out">  ► Reporte HTML generado: audittest-report.html</div>
         <br>
-        <div>  Resumen: <span style="color:var(--red)">2 criticos</span> · <span style="color:var(--yellow)">3 mayores</span> · <span style="color:var(--blue)">1 menor</span></div>
+        <div>  <span style="font-weight:700">Accessibility Score:</span></div>
+        <div>  <span style="color:var(--green)">████████████████░░░░ 82/100 — Bueno</span></div>
+        <br>
+        <div>  Resumen: <span style="color:var(--red)">1 critico</span> · <span style="color:var(--yellow)">2 mayores</span> · <span style="color:var(--blue)">1 menor</span></div>
+        <br>
+        <div>  <span style="color:var(--red)">[CRITICAL]</span> Contraste insuficiente</div>
+        <div>    "div.hero" ratio 1.89:1 (min: 4.5:1)</div>
+        <div>    <span style="color:var(--green)">Fix: Usa un color mas oscuro o fondo mas claro.</span></div>
       </div>
     </div>
   </div>
@@ -92,7 +99,7 @@ footer a{color:var(--purple-l)}
   <div class="container">
     <div class="section-label">Funcionalidades</div>
     <h2 class="section-title">Todo lo que necesitas para auditar</h2>
-    <p class="section-desc">Siete reglas WCAG 2.1 evaluadas automaticamente, deteccion visual de errores de layout, y reportes interactivos.</p>
+    <p class="section-desc">Siete reglas WCAG 2.1, deteccion visual, score 0-100, comparacion de URLs, modo watch y exportacion PDF.</p>
     <div class="features-grid">
       <div class="feature-card"><div class="feature-icon" style="background:rgba(124,58,237,.1)">🔍</div><h3>WCAG 2.1 Nivel AA</h3><p>Contraste, alt text, labels, headings, landmarks y botones sin texto accesible.</p></div>
       <div class="feature-card"><div class="feature-icon" style="background:rgba(59,130,246,.1)">📐</div><h3>Deteccion visual</h3><p>Analiza bounding boxes del DOM para encontrar overflow y elementos fuera del viewport.</p></div>
@@ -100,6 +107,33 @@ footer a{color:var(--purple-l)}
       <div class="feature-card"><div class="feature-icon" style="background:rgba(234,179,8,.1)">🔧</div><h3>Sugerencias de fix</h3><p>Cada issue incluye una sugerencia concreta de CSS/HTML para corregirlo.</p></div>
       <div class="feature-card"><div class="feature-icon" style="background:rgba(239,68,68,.1)">🚫</div><h3>CI/CD y Git Hook</h3><p>Exit code 1 en criticos, salida JSON, hook pre-push que bloquea deploys rotos.</p></div>
       <div class="feature-card"><div class="feature-icon" style="background:rgba(6,182,212,.1)">⚡</div><h3>100% local</h3><p>Puppeteer headless en tu maquina. Sin APIs externas, sin latencia, sin costos.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(34,197,94,.1)">🎯</div><h3>Score 0-100</h3><p>Puntuacion de accesibilidad con barra de progreso. Clasifica tu pagina: Excelente, Bueno, Necesita Mejora o Pobre.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(249,115,22,.1)">🔀</div><h3>URL Diff (--diff)</h3><p>Compara dos URLs y muestra regresiones, mejoras e issues persistentes con indicadores +/- en terminal.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(14,165,233,.1)">👁️</div><h3>Watch Mode (--watch)</h3><p>Monitoreo en tiempo real: re-audita cada 30 segundos y marca issues [NEW] y [FIXED] automaticamente.</p></div>
+      <div class="feature-card"><div class="feature-icon" style="background:rgba(168,85,247,.1)">📄</div><h3>PDF Export (--pdf)</h3><p>Exporta reportes completos en PDF con score, resumen de issues, sugerencias de fix y screenshot incluido.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-alt">
+  <div class="container">
+    <div class="section-label">Comandos</div>
+    <h2 class="section-title">Un CLI completo</h2>
+    <p class="section-desc">Todas las formas de usar AuditTest Vision desde la terminal.</p>
+    <div class="features-grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="feature-card" style="font-family:monospace;font-size:.8rem;line-height:2;color:var(--tm)">
+        <div style="color:var(--green);margin-bottom:8px;font-family:sans-serif;font-weight:600;font-size:.85rem">Auditoria + Reporte</div>
+        npx audittest-vision https://url.com --report --fix<br>
+        npx audittest-vision https://url.com --pdf<br>
+        npx audittest-vision https://url.com --json<br>
+        npx audittest-vision https://url.com --screenshot
+      </div>
+      <div class="feature-card" style="font-family:monospace;font-size:.8rem;line-height:2;color:var(--tm)">
+        <div style="color:var(--purple-l);margin-bottom:8px;font-family:sans-serif;font-weight:600;font-size:.85rem">Comparacion y Monitoreo</div>
+        npx audittest-vision https://prod.com --diff https://staging.com<br>
+        npx audittest-vision http://localhost:3000 --watch<br>
+        npx audittest-vision ./dist/index.html --report
+      </div>
     </div>
   </div>
 </section>

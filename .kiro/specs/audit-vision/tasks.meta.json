@@ -1,0 +1,648 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "18. Implement scoring algorithm (100 - weighted deductions)": [
+      {
+        "executionId": "16e31298-e4ec-4add-bbb6-9baab9f7051c",
+        "chatSessionId": "sess_db7bb9da-bc6e-4b3e-9935-746f3569f619",
+        "timestamp": 1785137501997
+      },
+      {
+        "executionId": "16e31298-e4ec-4add-bbb6-9baab9f7051c",
+        "chatSessionId": "sess_db7bb9da-bc6e-4b3e-9935-746f3569f619",
+        "timestamp": 1785137805710
+      }
+    ],
+    "19. Add score display to terminal output (colored bar)": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970143
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137988922
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785139697702
+      }
+    ],
+    "20. Add score gauge to HTML report": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970260
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785139701674
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785139860104
+      }
+    ],
+    "21. Include score in JSON output": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970355
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785139863731
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140019097
+      }
+    ],
+    "22. Implement --diff flag to accept second URL": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970463
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140022960
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140119822
+      }
+    ],
+    "23. Run parallel audits on both URLs": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970555
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140123411
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140265795
+      }
+    ],
+    "24. Calculate diff (new issues, fixed issues, persistent)": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970664
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140269067
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140504749
+      }
+    ],
+    "25. Display diff in terminal with +/- indicators": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970776
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140508863
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140703737
+      }
+    ],
+    "26. Add score delta display": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970864
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140707134
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140809173
+      }
+    ],
+    "27. Implement --watch flag with 30s interval": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137970951
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785140814244
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141109974
+      }
+    ],
+    "28. Track issues between runs (detect [NEW] and [FIXED])": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971032
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141114465
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141244770
+      }
+    ],
+    "29. Display changes in terminal on each cycle": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971125
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141248180
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141469896
+      }
+    ],
+    "30. Clean exit on Ctrl+C": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971256
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141473520
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141554455
+      }
+    ],
+    "31. Implement --pdf flag using Puppeteer to render HTML report": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971344
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141558997
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141719126
+      }
+    ],
+    "32. Generate PDF with score, issues, and screenshot": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971431
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785141723040
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142029256
+      }
+    ],
+    "33. Save as audittest-report.pdf": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971521
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142034043
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142113398
+      }
+    ],
+    "34. Update README.md with all new commands and examples": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971609
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142121757
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142226302
+      }
+    ],
+    "35. Update landing page (docs/index.html)": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971754
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142229923
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142304867
+      }
+    ],
+    "36. Update --help text with all flags": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971872
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142309176
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142408460
+      }
+    ],
+    "37. Final build + npm publish v1.1.0": [
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785137971968
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142412055
+      },
+      {
+        "executionId": "69cf843a-3371-4ba9-9e1c-0fe309af9f1e",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785142790333
+      }
+    ],
+    "42.1 Add `vitest` and `@vitest/coverage-v8` to devDependencies in package.json": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143594941
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143606130
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143677153
+      }
+    ],
+    "42.2 Add test scripts to package.json": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595061
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143606886
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143677928
+      }
+    ],
+    "42.3 Create `vitest.config.ts` at project root": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595171
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143607723
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143678732
+      }
+    ],
+    "43.1 Create `src/core/configLoader.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595302
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143683592
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143866050
+      }
+    ],
+    "43.2 Update `WcagModule` to accept config for rule enable/disable": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595413
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143872415
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144107992
+      }
+    ],
+    "43.3 Integrate config loader into CLI (`src/cli/audittest.ts`)": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595535
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143873277
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144108851
+      }
+    ],
+    "44.1 Refactor `audittest.ts` to import and use `scoreCalculator`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595641
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144137528
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144349435
+      }
+    ],
+    "44.2 Refactor CLI audit rules to delegate to `WcagModule`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595734
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144353489
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144786851
+      }
+    ],
+    "45. Checkpoint — Ensure CLI still produces identical output after refactor": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595895
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144792043
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145128866
+      }
+    ],
+    "46.1 Implement `accessibleNameRule()` in `src/modules/wcagModule.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143595987
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143684436
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143866935
+      }
+    ],
+    "48. Checkpoint — Ensure all tests pass": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143596090
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145137723
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145223667
+      }
+    ],
+    "49.1 Refactor `runAuditPipeline()` in `src/extension/background.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143596191
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143685369
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143867892
+      }
+    ],
+    "49.2 Implement `runLocalAudit()` using bundled WcagModule": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143596291
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143874155
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144110030
+      }
+    ],
+    "50. Final checkpoint — Verify all phases pass": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143596387
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145227961
+      },
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145425243
+      }
+    ],
+    "42. Set up Vitest test framework": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143678872
+      }
+    ],
+    "46. Add accessible name rule to WcagModule": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785143867045
+      }
+    ],
+    "43. Implement config loading utility": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144108965
+      }
+    ],
+    "49. Implement local-first audit fallback in background.ts": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144110149
+      }
+    ],
+    "44. Eliminate code duplication between CLI and core modules": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785144787010
+      }
+    ],
+    "47.1 Create `src/core/scoreCalculator.test.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145438975
+      }
+    ],
+    "43.4 Write unit tests for configLoader": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145439750
+      }
+    ],
+    "46.2 Write unit tests for the new accessible name rule": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145440624
+      }
+    ],
+    "47.2 Create `src/modules/wcagModule.test.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145441477
+      }
+    ],
+    "47.3 Create `src/core/auditEngine.test.ts`": [
+      {
+        "executionId": "3ac28093-11a7-4835-9bd2-50db5babac4a",
+        "chatSessionId": "sess_2069a38a-565d-4696-b4b7-b7ae59ced032",
+        "timestamp": 1785145442230
+      }
+    ]
+  }
+}

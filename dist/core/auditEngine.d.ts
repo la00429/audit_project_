@@ -9,6 +9,7 @@
  * communicates only through well-defined interfaces.
  */
 import { FixPatch } from '../modules/autoFixModule';
+import { ScoreResult } from './scoreCalculator';
 /** Metadata about a DOM element relevant to auditing */
 export interface DOMElementMeta {
     selector: string;
@@ -52,6 +53,7 @@ export interface AuditReport {
     pageUrl: string;
     totalIssues: number;
     criticalCount: number;
+    score: ScoreResult;
     issues: AuditIssue[];
     patches: FixPatch[];
     durationMs: number;

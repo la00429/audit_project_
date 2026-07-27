@@ -21,7 +21,8 @@ export interface WcagIssue {
 }
 export declare class WcagModule {
     private rules;
-    constructor();
+    private disabledRules;
+    constructor(disabledRules?: string[]);
     /** Run all WCAG rules against the provided elements */
     evaluate(elements: DOMElementMeta[]): Promise<WcagIssue[]>;
     /** WCAG 1.1.1 — Non-text content must have alt text */
@@ -34,6 +35,8 @@ export declare class WcagModule {
     private headingHierarchyRule;
     /** WCAG 1.3.1 — Page should have landmark regions */
     private missingLandmarkRule;
+    /** WCAG 1.1.1 — Buttons and links must have accessible names */
+    private accessibleNameRule;
     /** Parse CSS color string to RGB tuple */
     private parseColor;
     /** Calculate relative luminance (WCAG formula) */

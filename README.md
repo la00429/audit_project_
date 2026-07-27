@@ -41,57 +41,178 @@ npx audittest-vision https://cualquier-sitio.com
 ```bash
 npx audittest-vision https://google.com
 ```
+**Salida esperada:**
+```
+🔍 Auditing: https://google.com
+████████████████░░░░ 82/100 — Bueno
 
-### Con sugerencias de fix
+Found 3 issues:
+  ⛔ [critical] Contraste insuficiente — div.header > h1 (ratio: 2.8:1)
+  ⚠️  [major] Imagen sin alt text — img.logo
+  ℹ️  [minor] Heading saltado (h1 → h3) — section.content > h3
+```
+
+### Con sugerencias de fix (`--fix`)
 ```bash
 npx audittest-vision https://miapp.com --fix
 ```
+**Salida esperada:**
+```
+🔍 Auditing: https://miapp.com
+████████████████████ 95/100 — Excelente
 
-### Reporte HTML interactivo (con screenshot anotado + score gauge)
+Found 1 issue:
+  ⚠️  [major] Imagen sin alt text — img.hero-banner
+
+💡 Auto-fix suggestions:
+  1. img.hero-banner
+     Type: attribute
+     Fix: <img src="hero.png" alt="Banner principal del sitio">
+     Desc: Agregar texto alternativo descriptivo
+```
+
+### Reporte HTML interactivo (`--report`)
 ```bash
 npx audittest-vision https://miapp.com --report --fix
 ```
+**Salida esperada:**
+```
+🔍 Auditing: https://miapp.com
+📸 Screenshot captured
+📊 Score: 78/100 — Bueno
+📝 Report saved: audittest-report.html
+   Open in browser to see interactive markers on screenshot
+```
+Genera un archivo `audittest-report.html` con screenshot anotado, markers clickeables, score gauge, y toggle light/dark mode.
 
-### Exportar como PDF
+### Exportar como PDF (`--pdf`)
 ```bash
 npx audittest-vision https://miapp.com --pdf
 ```
+**Salida esperada:**
+```
+🔍 Auditing: https://miapp.com
+📸 Screenshot captured
+📊 Score: 78/100 — Bueno
+📄 PDF saved: audittest-report.pdf
+```
+Genera un archivo `audittest-report.pdf` con score, resumen por severidad, lista detallada de issues, y screenshot.
 
-### Comparar dos URLs (producción vs staging)
+### Comparar dos URLs (`--diff`)
 ```bash
 npx audittest-vision https://prod.com --diff https://staging.com
 ```
+**Salida esperada:**
+```
+🔍 Comparing:
+   URL1: https://prod.com (Score: 72)
+   URL2: https://staging.com (Score: 85)
 
-### Watch mode (re-audita cada 30s durante desarrollo)
+📈 Score change: +13 points
+
+  + [FIXED] img.banner sin alt text
+  + [FIXED] Contraste en .nav-link
+  - [NEW] Heading saltado en section.about
+  = [PERSISTENT] Input sin label — form#contact > input.email
+```
+
+### Watch mode (`--watch`)
 ```bash
 npx audittest-vision http://localhost:3000 --watch
 ```
+**Salida esperada:**
+```
+🔍 Watching: http://localhost:3000 (every 30s)
+   Press Ctrl+C to stop
 
-### Salida JSON (para CI/CD pipelines)
+[14:30:00] Score: 82/100 — 3 issues
+[14:30:30] Score: 85/100 — 2 issues
+   [FIXED] img.logo sin alt text
+[14:31:00] Score: 78/100 — 4 issues
+   [NEW] Contraste insuficiente — .footer > p
+   [NEW] Input sin label — form > input.search
+```
+
+### Salida JSON (`--json`)
 ```bash
 npx audittest-vision https://miapp.com --json
 ```
+**Salida esperada:**
+```json
+{
+  "url": "https://miapp.com",
+  "timestamp": "2025-01-15T10:30:00Z",
+  "duration": 2340,
+  "score": 82,
+  "classification": "Bueno",
+  "issues": [
+    {
+      "id": "wcag-1.1.1-alt",
+      "severity": "major",
+      "rule": "1.1.1 Non-text Content",
+      "selector": "img.hero-banner",
+      "message": "Imagen sin texto alternativo"
+    }
+  ],
+  "summary": { "critical": 0, "major": 1, "minor": 2 }
+}
+```
+Exit code: `0` si no hay issues críticos, `1` si hay al menos un critical (útil para CI/CD).
 
-### Guardar screenshot
+### Guardar screenshot (`--screenshot`)
 ```bash
 npx audittest-vision https://miapp.com --screenshot
+```
+**Salida esperada:**
+```
+🔍 Auditing: https://miapp.com
+📸 Screenshot saved: audittest-screenshot.png
+📊 Score: 82/100 — Bueno
+Found 3 issues...
+```
+
+### Mostrar ayuda (`--help`)
+```bash
+npx audittest-vision --help
+```
+**Salida esperada:**
+```
+AuditTest Vision — CLI de auditoría de accesibilidad
+
+Uso: npx audittest-vision <url> [opciones]
+
+Opciones:
+  --fix              Muestra sugerencias de auto-fix
+  --report           Genera reporte HTML interactivo
+  --pdf              Exporta reporte como PDF
+  --json             Salida JSON (para CI/CD)
+  --diff <url2>      Compara accesibilidad entre dos URLs
+  --watch            Re-audita cada 30s (modo desarrollo)
+  --screenshot       Guarda screenshot como PNG
+  --help, -h         Muestra esta ayuda
+
+Ejemplos:
+  npx audittest-vision https://google.com
+  npx audittest-vision https://miapp.com --fix --report
+  npx audittest-vision https://prod.com --diff https://staging.com
+  npx audittest-vision http://localhost:3000 --watch
 ```
 
 ---
 
 ## Referencia Completa de Flags
 
-| Flag | Descripción |
-|------|-------------|
-| `<url>` | URL o ruta de archivo a auditar |
-| `--fix` | Muestra sugerencias de auto-fix para cada issue |
-| `--report` | Genera reporte HTML interactivo con screenshot anotado |
-| `--pdf` | Exporta el reporte como PDF |
-| `--json` | Salida JSON para pipelines CI/CD |
-| `--diff <url2>` | Compara accesibilidad entre dos URLs |
-| `--watch` | Re-audita cada 30 segundos (modo dev) |
-| `--screenshot` | Guarda screenshot como PNG |
-| `--help, -h` | Muestra ayuda completa |
+| Flag | Descripción | Ejemplo | Formato de salida |
+|------|-------------|---------|-------------------|
+| `<url>` | URL o ruta local a auditar | `npx audittest-vision https://google.com` | Terminal: score + lista de issues |
+| `--fix` | Muestra sugerencias de auto-fix para cada issue | `npx audittest-vision url --fix` | Terminal: issues + bloque de sugerencias con selector, tipo y código |
+| `--report` | Genera reporte HTML interactivo con screenshot anotado | `npx audittest-vision url --report` | Archivo: `audittest-report.html` |
+| `--pdf` | Exporta el reporte como PDF | `npx audittest-vision url --pdf` | Archivo: `audittest-report.pdf` |
+| `--json` | Salida JSON estructurada para CI/CD | `npx audittest-vision url --json` | stdout: JSON con url, score, issues[], summary |
+| `--diff <url2>` | Compara accesibilidad entre dos URLs | `npx audittest-vision url1 --diff url2` | Terminal: score delta + lista [NEW]/[FIXED]/[PERSISTENT] |
+| `--watch` | Re-audita cada 30 segundos (modo dev) | `npx audittest-vision url --watch` | Terminal: updates continuos con [NEW]/[FIXED] por ciclo |
+| `--screenshot` | Guarda screenshot de la página como PNG | `npx audittest-vision url --screenshot` | Archivo: `audittest-screenshot.png` |
+| `--help, -h` | Muestra documentación de ayuda completa | `npx audittest-vision --help` | Terminal: lista de flags, descripciones y ejemplos |
 
 ---
 

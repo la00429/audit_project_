@@ -12,6 +12,7 @@
 import { VisualModule, VisualIssue } from '../modules/visualModule';
 import { WcagModule, WcagIssue } from '../modules/wcagModule';
 import { AutoFixModule, FixPatch } from '../modules/autoFixModule';
+import { calculateScore, ScoreResult } from './scoreCalculator';
 
 // --- Shared Types ---
 
@@ -57,6 +58,7 @@ export interface AuditReport {
   pageUrl: string;
   totalIssues: number;
   criticalCount: number;
+  score: ScoreResult;
   issues: AuditIssue[];
   patches: FixPatch[];
   durationMs: number;
@@ -105,12 +107,14 @@ export class AuditEngine {
     // Build unified report
     const issues = this.mergeIssues(visualIssues, wcagIssues, patches);
     const criticalCount = issues.filter(i => i.severity === 'critical').length;
+    const score = calculateScore(issues);
 
     return {
       timestamp: new Date().toISOString(),
       pageUrl: input.pageUrl,
       totalIssues: issues.length,
       criticalCount,
+      score,
       issues,
       patches,
       durationMs: Date.now() - startTime,

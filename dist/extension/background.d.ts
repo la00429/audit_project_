@@ -1,13 +1,9 @@
 /**
- * AuditTest Vision — Background Service Worker
+ * AuditTest Vision — Background Service Worker (Offline-First)
  *
- * Manifest V3 service worker that orchestrates the audit pipeline:
- * 1. Captures visible tab screenshot via chrome.tabs API
- * 2. Requests DOM metadata from content script
- * 3. Dispatches to the AuditEngine for analysis
- * 4. Returns results to popup and content script
- *
- * Runs in the extension's background context (no DOM access).
+ * Runs the full WCAG audit LOCALLY without any external API calls.
+ * All 7 rules execute inside the service worker using DOM metadata
+ * extracted by the content script.
  */
 interface DOMElementMeta {
     selector: string;
@@ -22,43 +18,33 @@ interface DOMElementMeta {
     attributes?: Record<string, string>;
     textContent?: string;
 }
+interface AuditIssue {
+    id: string;
+    severity: 'critical' | 'major' | 'minor' | 'info';
+    title: string;
+    description: string;
+    selector?: string;
+    wcagCriterion?: string;
+    fix?: string;
+}
 interface AuditReport {
     timestamp: string;
     pageUrl: string;
+    score: number;
+    scoreLabel: string;
     totalIssues: number;
     criticalCount: number;
-    issues: Array<{
-        id: string;
-        module: string;
-        severity: string;
-        title: string;
-        description: string;
-        selector?: string;
-        fix?: {
-            code: string;
-            fixType: string;
-            description: string;
-        };
-    }>;
-    patches: Array<{
-        code: string;
-        targetSelector: string;
-        description: string;
-    }>;
+    majorCount: number;
+    minorCount: number;
+    issues: AuditIssue[];
     durationMs: number;
 }
-declare const API_ENDPOINT = "https://api.audittest.local/v1/audit";
-/** Full audit pipeline orchestration */
 declare function handleAuditRequest(sendResponse: (response: {
     type: string;
     payload: unknown;
 }) => void): Promise<void>;
-/**
- * Execute the audit pipeline.
- * In production, this calls the remote API.
- * For local dev, you can swap to a bundled AuditEngine instance.
- */
-declare function runAuditPipeline(screenshot: string, elements: DOMElementMeta[], pageUrl: string): Promise<AuditReport>;
-/** Retrieve API key from extension storage */
-declare function getStoredApiKey(): Promise<string | null>;
+declare function runLocalAudit(elements: DOMElementMeta[], pageUrl: string): AuditReport;
+declare function parseRgb(color: string): [number, number, number] | null;
+declare function relativeLuminance(rgb: [number, number, number]): number;
+declare function contrastRatio(fg: [number, number, number], bg: [number, number, number]): number;
 //# sourceMappingURL=background.d.ts.map

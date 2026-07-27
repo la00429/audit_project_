@@ -17,6 +17,8 @@
 import puppeteer from 'puppeteer';
 import * as path from 'path';
 import * as fs from 'fs';
+import { loadConfig, getDisabledRules } from '../core/configLoader.js';
+import { SEVERITY_WEIGHTS } from '../core/scoreCalculator.js';
 
 // --- Types ---
 
@@ -63,10 +65,19 @@ const flags = {
   diff: args.includes('--diff'),
 };
 
+// PDF implicitly enables fix suggestions (REQ-8: PDF must contain fix suggestions)
+if (flags.pdf) {
+  flags.fix = true;
+}
+
 // Get URLs
 const nonFlagArgs = args.filter(a => !a.startsWith('--') && !a.startsWith('-'));
 const targetUrl = nonFlagArgs[0];
 const diffUrl = flags.diff ? nonFlagArgs[1] : undefined;
+
+// --- Config Loading ---
+const auditConfig = loadConfig();
+const disabledRules = getDisabledRules(auditConfig);
 
 // --- Help ---
 
@@ -107,11 +118,19 @@ if (flags.help || !targetUrl) {
   \x1b[36m•\x1b[0m 1.4.3  Contraste de color insuficiente (Nivel AA)
   \x1b[36m•\x1b[0m Visual Elementos fuera del viewport
 
-\x1b[1mScore:\x1b[0m
+\x1b[1mFormatos de salida:\x1b[0m
+  Terminal    Resultado por defecto con barra de score coloreada
+  --json      Objeto JSON con score, issues y metadata (ideal para CI/CD)
+  --report    Archivo HTML interactivo con screenshot y markers
+  --pdf       Documento PDF con score, issues y sugerencias de fix
+
+\x1b[1mScore (0-100):\x1b[0m
   90-100  Excelente (verde)
   70-89   Bueno (amarillo)
   50-69   Necesita trabajo (naranja)
   0-49    Pobre (rojo)
+
+  Cálculo: 100 - (critical×25 + major×10 + minor×3)
 `);
   process.exit(0);
 }
@@ -119,8 +138,7 @@ if (flags.help || !targetUrl) {
 // --- Score Calculation ---
 
 function calculateScore(issues: AuditIssue[]): number {
-  const weights = { critical: 25, major: 10, minor: 3, info: 0 };
-  const totalDeductions = issues.reduce((sum, issue) => sum + weights[issue.severity], 0);
+  const totalDeductions = issues.reduce((sum, issue) => sum + (SEVERITY_WEIGHTS[issue.severity] ?? 0), 0);
   return Math.max(0, 100 - totalDeductions);
 }
 
@@ -249,7 +267,8 @@ async function main() {
   }
 
   const criticalCount = result.issues.filter(i => i.severity === 'critical').length;
-  process.exit(criticalCount > 0 ? 1 : 0);
+  const maxCritical = auditConfig.gates.prePush.maxCritical;
+  process.exit(criticalCount > maxCritical ? 1 : 0);
 }
 
 // --- WATCH MODE ---
@@ -299,10 +318,11 @@ async function runWatchMode(url: string) {
 // --- DIFF MODE ---
 
 async function runDiffMode(url1: string, url2: string) {
-  printStep(`Auditando URL 1: ${url1}`);
-  const result1 = await runSingleAudit(url1, false);
-  printStep(`Auditando URL 2: ${url2}`);
-  const result2 = await runSingleAudit(url2, false);
+  printStep(`Auditando ambas URLs en paralelo...`);
+  const [result1, result2] = await Promise.all([
+    runSingleAudit(url1, false),
+    runSingleAudit(url2, false),
+  ]);
 
   const onlyIn1 = result1.issues.filter(i => !result2.issues.find(j => j.title === i.title && j.selector === i.selector));
   const onlyIn2 = result2.issues.filter(i => !result1.issues.find(j => j.title === i.title && j.selector === i.selector));
@@ -390,51 +410,75 @@ async function extractElements(page: any): Promise<ElementMeta[]> {
 
 // --- Audit Rules Engine ---
 
+/**
+ * CLI audit rules engine.
+ *
+ * Note: These rules intentionally duplicate wcagModule logic for the CLI path.
+ * The WcagModule is used by the Chrome Extension and AuditEngine API paths.
+ * The CLI uses Spanish messages, inline formatting, and --fix suggestions
+ * that differ from the module's output format.
+ *
+ * Rule enable/disable is controlled via audit-rules.spec.json (loaded in configLoader).
+ * See: https://github.com/la00429/audit_project_/issues — tracked for future unification.
+ */
 function runAudit(elements: ElementMeta[]): AuditIssue[] {
   const issues: AuditIssue[] = [];
+  const skip = new Set(disabledRules);
   let counter = 0;
 
   // Rule 1: Images without alt text
-  elements.filter(el => el.tagName === 'IMG' && !el.attributes.alt && !el.attributes['aria-label'])
-    .forEach(img => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Imagen sin texto alternativo', description: `"${img.selector}" no tiene alt ni aria-label.`, selector: img.selector, wcagCriterion: '1.1.1', fix: flags.fix ? 'Agrega: alt="Descripción de la imagen"' : undefined }); });
+  if (!skip.has('missing-alt')) {
+    elements.filter(el => el.tagName === 'IMG' && !el.attributes.alt && !el.attributes['aria-label'])
+      .forEach(img => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Imagen sin texto alternativo', description: `"${img.selector}" no tiene alt ni aria-label.`, selector: img.selector, wcagCriterion: '1.1.1', fix: flags.fix ? 'Agrega: alt="Descripción de la imagen"' : undefined }); });
+  }
 
   // Rule 2: Form inputs without labels
-  elements.filter(el => ['INPUT','SELECT','TEXTAREA'].includes(el.tagName) && !el.attributes['aria-label'] && !el.attributes['aria-labelledby'] && !el.attributes.id)
-    .forEach(input => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Campo sin label', description: `<${input.tagName.toLowerCase()}> "${input.selector}" no tiene label asociado.`, selector: input.selector, wcagCriterion: '1.3.1', fix: flags.fix ? 'Agrega: aria-label="Descripción del campo"' : undefined }); });
+  if (!skip.has('missing-label')) {
+    elements.filter(el => ['INPUT','SELECT','TEXTAREA'].includes(el.tagName) && !el.attributes['aria-label'] && !el.attributes['aria-labelledby'] && !el.attributes.id)
+      .forEach(input => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Campo sin label', description: `<${input.tagName.toLowerCase()}> "${input.selector}" no tiene label asociado.`, selector: input.selector, wcagCriterion: '1.3.1', fix: flags.fix ? 'Agrega: aria-label="Descripción del campo"' : undefined }); });
+  }
 
   // Rule 3: Color contrast
-  for (const el of elements) {
-    if (!el.textContent || !el.computedStyles.color || !el.computedStyles.backgroundColor) continue;
-    if (el.computedStyles.backgroundColor === 'rgba(0, 0, 0, 0)') continue;
-    const fg = parseRgb(el.computedStyles.color); const bg = parseRgb(el.computedStyles.backgroundColor);
-    if (!fg || !bg) continue;
-    const ratio = contrastRatio(fg, bg);
-    const fontSize = parseFloat(el.computedStyles.fontSize || '16');
-    const fontWeight = parseInt(el.computedStyles.fontWeight || '400');
-    const threshold = (fontSize >= 18 || (fontSize >= 14 && fontWeight >= 700)) ? 3.0 : 4.5;
-    if (ratio < threshold) {
-      issues.push({ id: `ATV-${++counter}`, severity: ratio < 2.5 ? 'critical' : 'major', title: 'Contraste insuficiente', description: `"${el.selector}" ratio ${ratio.toFixed(2)}:1 (mín: ${threshold}:1)`, selector: el.selector, wcagCriterion: '1.4.3', fix: flags.fix ? 'Usa un color más oscuro o fondo más claro.' : undefined });
+  if (!skip.has('color-contrast')) {
+    for (const el of elements) {
+      if (!el.textContent || !el.computedStyles.color || !el.computedStyles.backgroundColor) continue;
+      if (el.computedStyles.backgroundColor === 'rgba(0, 0, 0, 0)') continue;
+      const fg = parseRgb(el.computedStyles.color); const bg = parseRgb(el.computedStyles.backgroundColor);
+      if (!fg || !bg) continue;
+      const ratio = contrastRatio(fg, bg);
+      const fontSize = parseFloat(el.computedStyles.fontSize || '16');
+      const fontWeight = parseInt(el.computedStyles.fontWeight || '400');
+      const threshold = (fontSize >= 18 || (fontSize >= 14 && fontWeight >= 700)) ? 3.0 : 4.5;
+      if (ratio < threshold) {
+        issues.push({ id: `ATV-${++counter}`, severity: ratio < 2.5 ? 'critical' : 'major', title: 'Contraste insuficiente', description: `"${el.selector}" ratio ${ratio.toFixed(2)}:1 (mín: ${threshold}:1)`, selector: el.selector, wcagCriterion: '1.4.3', fix: flags.fix ? 'Usa un color más oscuro o fondo más claro.' : undefined });
+      }
     }
   }
 
   // Rule 4: Heading hierarchy
-  const headings = elements.filter(el => /^H[1-6]$/.test(el.tagName)).sort((a, b) => a.boundingBox.y - b.boundingBox.y);
-  for (let i = 1; i < headings.length; i++) {
-    const prev = parseInt(headings[i-1].tagName[1]); const curr = parseInt(headings[i].tagName[1]);
-    if (curr > prev + 1) { issues.push({ id: `ATV-${++counter}`, severity: 'minor', title: 'Heading saltado', description: `"${headings[i].selector}" <h${curr}> sigue a <h${prev}>.`, selector: headings[i].selector, wcagCriterion: '1.3.1', fix: flags.fix ? `Cambia a <h${prev+1}>.` : undefined }); }
+  if (!skip.has('heading-order')) {
+    const headings = elements.filter(el => /^H[1-6]$/.test(el.tagName)).sort((a, b) => a.boundingBox.y - b.boundingBox.y);
+    for (let i = 1; i < headings.length; i++) {
+      const prev = parseInt(headings[i-1].tagName[1]); const curr = parseInt(headings[i].tagName[1]);
+      if (curr > prev + 1) { issues.push({ id: `ATV-${++counter}`, severity: 'minor', title: 'Heading saltado', description: `"${headings[i].selector}" <h${curr}> sigue a <h${prev}>.`, selector: headings[i].selector, wcagCriterion: '1.3.1', fix: flags.fix ? `Cambia a <h${prev+1}>.` : undefined }); }
+    }
   }
 
   // Rule 5: Missing landmarks
-  const hasLandmark = elements.some(el => ['MAIN','NAV','HEADER','FOOTER','ASIDE'].includes(el.tagName) || !!el.attributes.role);
-  if (!hasLandmark && elements.length > 10) { issues.push({ id: `ATV-${++counter}`, severity: 'minor', title: 'Sin landmarks', description: 'No hay <main>, <nav>, <header> ni roles ARIA.', wcagCriterion: '1.3.1', fix: flags.fix ? 'Usa <main>, <nav>, <header>, <footer>.' : undefined }); }
+  if (!skip.has('missing-landmark')) {
+    const hasLandmark = elements.some(el => ['MAIN','NAV','HEADER','FOOTER','ASIDE'].includes(el.tagName) || !!el.attributes.role);
+    if (!hasLandmark && elements.length > 10) { issues.push({ id: `ATV-${++counter}`, severity: 'minor', title: 'Sin landmarks', description: 'No hay <main>, <nav>, <header> ni roles ARIA.', wcagCriterion: '1.3.1', fix: flags.fix ? 'Usa <main>, <nav>, <header>, <footer>.' : undefined }); }
+  }
 
-  // Rule 6: Viewport overflow
+  // Rule 6: Viewport overflow (visual rule, not configurable via WCAG config)
   elements.filter(el => el.boundingBox.x + el.boundingBox.width > 1290 && el.boundingBox.width > 0).slice(0, 3)
     .forEach(el => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Fuera del viewport', description: `"${el.selector}" excede ${Math.round(el.boundingBox.x + el.boundingBox.width - 1280)}px.`, selector: el.selector, fix: flags.fix ? 'Agrega: max-width: 100%; overflow: hidden;' : undefined }); });
 
   // Rule 7: Buttons/links without text
-  elements.filter(el => (el.tagName === 'BUTTON' || el.tagName === 'A') && !el.textContent && !el.attributes['aria-label'] && !el.attributes.alt)
-    .forEach(btn => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Botón sin texto accesible', description: `<${btn.tagName.toLowerCase()}> "${btn.selector}" sin texto ni aria-label.`, selector: btn.selector, wcagCriterion: '1.1.1', fix: flags.fix ? 'Agrega aria-label="Acción"' : undefined }); });
+  if (!skip.has('accessible-name')) {
+    elements.filter(el => (el.tagName === 'BUTTON' || el.tagName === 'A') && !el.textContent && !el.attributes['aria-label'] && !el.attributes.alt)
+      .forEach(btn => { issues.push({ id: `ATV-${++counter}`, severity: 'major', title: 'Botón sin texto accesible', description: `<${btn.tagName.toLowerCase()}> "${btn.selector}" sin texto ni aria-label.`, selector: btn.selector, wcagCriterion: '1.1.1', fix: flags.fix ? 'Agrega aria-label="Acción"' : undefined }); });
+  }
 
   return issues;
 }

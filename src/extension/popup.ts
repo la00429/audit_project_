@@ -1,10 +1,11 @@
 /**
- * AuditTest Vision — Popup Controller
+ * AuditTest Vision — Popup Controller (Offline-First)
  *
- * Handles the extension popup UI interactions:
- * - Start Audit button triggers screenshot capture + analysis
- * - Renders audit results with severity badges
- * - Provides "Copy Fix" and "Export as GitHub Issue" actions
+ * Handles the extension popup UI:
+ * - Start Audit triggers local WCAG analysis
+ * - Shows accessibility score (0-100)
+ * - Renders issue list with severity badges
+ * - Copy fixes and Export as GitHub Issue
  */
 
 interface AuditMessage {
@@ -12,21 +13,24 @@ interface AuditMessage {
   payload?: unknown;
 }
 
-interface PopupIssue {
+interface AuditIssue {
   id: string;
-  module: string;
   severity: string;
   title: string;
   description: string;
   selector?: string;
-  fix?: { code: string; fixType: string; description: string };
+  wcagCriterion?: string;
+  fix?: string;
 }
 
-interface PopupReport {
+interface AuditReport {
+  score: number;
+  scoreLabel: string;
   totalIssues: number;
   criticalCount: number;
-  issues: PopupIssue[];
-  patches: Array<{ code: string; targetSelector: string; description: string }>;
+  majorCount: number;
+  minorCount: number;
+  issues: AuditIssue[];
   pageUrl: string;
   timestamp: string;
   durationMs: number;
@@ -36,6 +40,8 @@ interface PopupReport {
 const startBtn = document.getElementById('start-audit-btn') as HTMLButtonElement;
 const statusEl = document.getElementById('status') as HTMLDivElement;
 const resultsEl = document.getElementById('results') as HTMLDivElement;
+const scoreEl = document.getElementById('score-value') as HTMLDivElement;
+const scoreLabelEl = document.getElementById('score-label') as HTMLDivElement;
 const criticalCountEl = document.getElementById('critical-count') as HTMLDivElement;
 const majorCountEl = document.getElementById('major-count') as HTMLDivElement;
 const minorCountEl = document.getElementById('minor-count') as HTMLDivElement;
@@ -43,23 +49,24 @@ const issueListEl = document.getElementById('issue-list') as HTMLDivElement;
 const exportGithubBtn = document.getElementById('export-github-btn') as HTMLButtonElement;
 const copyFixesBtn = document.getElementById('copy-fixes-btn') as HTMLButtonElement;
 
-let currentReport: PopupReport | null = null;
+let currentReport: AuditReport | null = null;
 
 // --- Event Handlers ---
 
-startBtn.addEventListener('click', async () => {
+startBtn.addEventListener('click', () => {
   startBtn.disabled = true;
-  setStatus('Capturing screenshot...');
+  startBtn.textContent = 'Analizando...';
+  setStatus('Extrayendo DOM y ejecutando reglas WCAG...');
 
-  // Send message to background service worker to start the audit
   chrome.runtime.sendMessage({ type: 'START_AUDIT' }, (response: AuditMessage) => {
     if (response?.type === 'AUDIT_COMPLETE') {
-      currentReport = response.payload as PopupReport;
+      currentReport = response.payload as AuditReport;
       renderResults(currentReport);
     } else if (response?.type === 'AUDIT_ERROR') {
       setStatus(`Error: ${response.payload}`);
     }
     startBtn.disabled = false;
+    startBtn.textContent = 'Start Audit';
   });
 });
 
@@ -67,18 +74,20 @@ exportGithubBtn.addEventListener('click', () => {
   if (!currentReport) return;
   const payload = generateGithubIssue(currentReport);
   navigator.clipboard.writeText(payload).then(() => {
-    exportGithubBtn.textContent = 'Copied!';
-    setTimeout(() => { exportGithubBtn.textContent = 'Export as GitHub Issue'; }, 2000);
+    exportGithubBtn.textContent = 'Copiado!';
+    setTimeout(() => { exportGithubBtn.textContent = 'Export GitHub Issue'; }, 2000);
   });
 });
 
 copyFixesBtn.addEventListener('click', () => {
-  if (!currentReport?.patches.length) return;
-  const allFixes = currentReport.patches
-    .map(p => `/* Fix: ${p.description} */\n/* Target: ${p.targetSelector} */\n${p.code}`)
+  if (!currentReport) return;
+  const fixes = currentReport.issues
+    .filter(i => i.fix)
+    .map(i => `/* ${i.title} — ${i.selector || 'general'} */\n${i.fix}`)
     .join('\n\n');
-  navigator.clipboard.writeText(allFixes).then(() => {
-    copyFixesBtn.textContent = 'Copied!';
+  if (!fixes) return;
+  navigator.clipboard.writeText(fixes).then(() => {
+    copyFixesBtn.textContent = 'Copiado!';
     setTimeout(() => { copyFixesBtn.textContent = 'Copy All Fixes'; }, 2000);
   });
 });
@@ -90,68 +99,55 @@ function setStatus(message: string) {
   statusEl.classList.add('active');
 }
 
-function renderResults(report: PopupReport) {
+function renderResults(report: AuditReport) {
   statusEl.classList.remove('active');
   resultsEl.classList.add('active');
 
-  // Update summary counts
-  const critical = report.issues.filter(i => i.severity === 'critical').length;
-  const major = report.issues.filter(i => i.severity === 'major').length;
-  const minor = report.issues.filter(i => i.severity === 'minor' || i.severity === 'info').length;
+  // Score
+  const scoreColor = report.score >= 90 ? '#22c55e' : report.score >= 70 ? '#eab308' : report.score >= 50 ? '#f97316' : '#ef4444';
+  scoreEl.textContent = String(report.score);
+  scoreEl.style.color = scoreColor;
+  scoreLabelEl.textContent = report.scoreLabel;
+  scoreLabelEl.style.color = scoreColor;
 
-  criticalCountEl.textContent = String(critical);
-  majorCountEl.textContent = String(major);
-  minorCountEl.textContent = String(minor);
+  // Counts
+  criticalCountEl.textContent = String(report.criticalCount);
+  majorCountEl.textContent = String(report.majorCount);
+  minorCountEl.textContent = String(report.minorCount);
 
-  // Render issue cards
+  // Issue cards
   issueListEl.innerHTML = '';
   for (const issue of report.issues) {
     const card = document.createElement('div');
     card.className = `issue-item ${issue.severity}`;
     card.innerHTML = `
-      <div class="title">[${issue.module.toUpperCase()}] ${issue.title}</div>
+      <div class="title">[${issue.severity.toUpperCase()}] ${issue.title}</div>
       <div class="desc">${issue.description}</div>
-      ${issue.fix ? `<button class="fix-btn" data-code="${encodeURIComponent(issue.fix.code)}">Copy Fix: ${issue.fix.fixType.toUpperCase()}</button>` : ''}
+      ${issue.fix ? `<div class="fix-line">${issue.fix}</div>` : ''}
     `;
     issueListEl.appendChild(card);
   }
-
-  // Attach fix copy handlers
-  issueListEl.querySelectorAll('.fix-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const code = decodeURIComponent((e.target as HTMLElement).getAttribute('data-code') || '');
-      navigator.clipboard.writeText(code).then(() => {
-        (e.target as HTMLElement).textContent = 'Copied!';
-        setTimeout(() => { (e.target as HTMLElement).textContent = 'Copy Fix'; }, 1500);
-      });
-    });
-  });
 }
 
 // --- GitHub Issue Generator ---
 
-function generateGithubIssue(report: PopupReport): string {
+function generateGithubIssue(report: AuditReport): string {
   const issueLines = report.issues.map(
-    i => `- **[${i.severity.toUpperCase()}]** ${i.title}\n  ${i.description}${i.selector ? `\n  Selector: \`${i.selector}\`` : ''}`
+    i => `- **[${i.severity.toUpperCase()}]** ${i.title}\n  ${i.description}${i.selector ? `\n  Selector: \`${i.selector}\`` : ''}${i.fix ? `\n  Fix: ${i.fix}` : ''}`
   ).join('\n');
 
   return `## AuditTest Vision Report
 
 **Page:** ${report.pageUrl}
+**Score:** ${report.score}/100 (${report.scoreLabel})
 **Date:** ${report.timestamp}
 **Duration:** ${report.durationMs}ms
-**Total Issues:** ${report.totalIssues} (${report.criticalCount} critical)
+**Issues:** ${report.totalIssues} (${report.criticalCount} critical, ${report.majorCount} major, ${report.minorCount} minor)
 
-### Issues Found
+### Issues
 
 ${issueLines}
 
-### Auto-Fix Patches
-
-${report.patches.length > 0
-  ? report.patches.map(p => `\`\`\`css\n/* ${p.description} */\n${p.code}\n\`\`\``).join('\n\n')
-  : '_No auto-fixes available_'}
-
 ---
-*Generated by AuditTest Vision v1.0.0*`;
+*Generated by AuditTest Vision v1.1.0*`;
 }

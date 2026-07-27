@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "chrome"]
   },
-  "include": ["src/extension/**/*.ts", "src/core/**/*.ts", "src/modules/**/*.ts", "src/cli/**/*.ts"]
+  "include": ["src/extension/**/*.ts", "src/core/**/*.ts", "src/modules/**/*.ts", "src/cli/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
 }

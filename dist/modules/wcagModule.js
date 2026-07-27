@@ -13,7 +13,9 @@
 // --- Module Implementation ---
 export class WcagModule {
     rules;
-    constructor() {
+    disabledRules;
+    constructor(disabledRules) {
+        this.disabledRules = new Set(disabledRules || []);
         // Register all built-in WCAG rules
         this.rules = [
             this.missingAltTextRule(),
@@ -21,12 +23,15 @@ export class WcagModule {
             this.missingFormLabelRule(),
             this.headingHierarchyRule(),
             this.missingLandmarkRule(),
+            this.accessibleNameRule(),
         ];
     }
     /** Run all WCAG rules against the provided elements */
     async evaluate(elements) {
         const issues = [];
         for (const rule of this.rules) {
+            if (this.disabledRules.has(rule.id))
+                continue; // Skip disabled rules
             const ruleIssues = rule.evaluate(elements);
             issues.push(...ruleIssues);
         }
@@ -159,6 +164,28 @@ export class WcagModule {
                         }];
                 }
                 return [];
+            },
+        };
+    }
+    /** WCAG 1.1.1 — Buttons and links must have accessible names */
+    accessibleNameRule() {
+        return {
+            id: 'accessible-name',
+            criterion: '1.1.1',
+            level: 'A',
+            evaluate: (elements) => {
+                const interactiveElements = ['button', 'a'];
+                return elements
+                    .filter(el => interactiveElements.includes(el.tagName.toLowerCase()))
+                    .filter(el => !el.textContent?.trim() && !el.attributes?.['aria-label'] && !el.attributes?.['aria-labelledby'])
+                    .map(el => ({
+                    title: 'Button/link missing accessible name',
+                    description: `<${el.tagName.toLowerCase()}> at "${el.selector}" has no text content, aria-label, or aria-labelledby. Screen readers cannot identify the purpose of this element.`,
+                    severity: 'major',
+                    selector: el.selector,
+                    wcagCriterion: '1.1.1',
+                    level: 'A',
+                }));
             },
         };
     }

@@ -1,16 +1,19 @@
 "use strict";
 /**
- * AuditTest Vision — Popup Controller
+ * AuditTest Vision — Popup Controller (Offline-First)
  *
- * Handles the extension popup UI interactions:
- * - Start Audit button triggers screenshot capture + analysis
- * - Renders audit results with severity badges
- * - Provides "Copy Fix" and "Export as GitHub Issue" actions
+ * Handles the extension popup UI:
+ * - Start Audit triggers local WCAG analysis
+ * - Shows accessibility score (0-100)
+ * - Renders issue list with severity badges
+ * - Copy fixes and Export as GitHub Issue
  */
 // --- DOM Elements ---
 const startBtn = document.getElementById('start-audit-btn');
 const statusEl = document.getElementById('status');
 const resultsEl = document.getElementById('results');
+const scoreEl = document.getElementById('score-value');
+const scoreLabelEl = document.getElementById('score-label');
 const criticalCountEl = document.getElementById('critical-count');
 const majorCountEl = document.getElementById('major-count');
 const minorCountEl = document.getElementById('minor-count');
@@ -19,10 +22,10 @@ const exportGithubBtn = document.getElementById('export-github-btn');
 const copyFixesBtn = document.getElementById('copy-fixes-btn');
 let currentReport = null;
 // --- Event Handlers ---
-startBtn.addEventListener('click', async () => {
+startBtn.addEventListener('click', () => {
     startBtn.disabled = true;
-    setStatus('Capturing screenshot...');
-    // Send message to background service worker to start the audit
+    startBtn.textContent = 'Analizando...';
+    setStatus('Extrayendo DOM y ejecutando reglas WCAG...');
     chrome.runtime.sendMessage({ type: 'START_AUDIT' }, (response) => {
         if (response?.type === 'AUDIT_COMPLETE') {
             currentReport = response.payload;
@@ -32,6 +35,7 @@ startBtn.addEventListener('click', async () => {
             setStatus(`Error: ${response.payload}`);
         }
         startBtn.disabled = false;
+        startBtn.textContent = 'Start Audit';
     });
 });
 exportGithubBtn.addEventListener('click', () => {
@@ -39,18 +43,21 @@ exportGithubBtn.addEventListener('click', () => {
         return;
     const payload = generateGithubIssue(currentReport);
     navigator.clipboard.writeText(payload).then(() => {
-        exportGithubBtn.textContent = 'Copied!';
-        setTimeout(() => { exportGithubBtn.textContent = 'Export as GitHub Issue'; }, 2000);
+        exportGithubBtn.textContent = 'Copiado!';
+        setTimeout(() => { exportGithubBtn.textContent = 'Export GitHub Issue'; }, 2000);
     });
 });
 copyFixesBtn.addEventListener('click', () => {
-    if (!currentReport?.patches.length)
+    if (!currentReport)
         return;
-    const allFixes = currentReport.patches
-        .map(p => `/* Fix: ${p.description} */\n/* Target: ${p.targetSelector} */\n${p.code}`)
+    const fixes = currentReport.issues
+        .filter(i => i.fix)
+        .map(i => `/* ${i.title} — ${i.selector || 'general'} */\n${i.fix}`)
         .join('\n\n');
-    navigator.clipboard.writeText(allFixes).then(() => {
-        copyFixesBtn.textContent = 'Copied!';
+    if (!fixes)
+        return;
+    navigator.clipboard.writeText(fixes).then(() => {
+        copyFixesBtn.textContent = 'Copiado!';
         setTimeout(() => { copyFixesBtn.textContent = 'Copy All Fixes'; }, 2000);
     });
 });
@@ -62,57 +69,45 @@ function setStatus(message) {
 function renderResults(report) {
     statusEl.classList.remove('active');
     resultsEl.classList.add('active');
-    // Update summary counts
-    const critical = report.issues.filter(i => i.severity === 'critical').length;
-    const major = report.issues.filter(i => i.severity === 'major').length;
-    const minor = report.issues.filter(i => i.severity === 'minor' || i.severity === 'info').length;
-    criticalCountEl.textContent = String(critical);
-    majorCountEl.textContent = String(major);
-    minorCountEl.textContent = String(minor);
-    // Render issue cards
+    // Score
+    const scoreColor = report.score >= 90 ? '#22c55e' : report.score >= 70 ? '#eab308' : report.score >= 50 ? '#f97316' : '#ef4444';
+    scoreEl.textContent = String(report.score);
+    scoreEl.style.color = scoreColor;
+    scoreLabelEl.textContent = report.scoreLabel;
+    scoreLabelEl.style.color = scoreColor;
+    // Counts
+    criticalCountEl.textContent = String(report.criticalCount);
+    majorCountEl.textContent = String(report.majorCount);
+    minorCountEl.textContent = String(report.minorCount);
+    // Issue cards
     issueListEl.innerHTML = '';
     for (const issue of report.issues) {
         const card = document.createElement('div');
         card.className = `issue-item ${issue.severity}`;
         card.innerHTML = `
-      <div class="title">[${issue.module.toUpperCase()}] ${issue.title}</div>
+      <div class="title">[${issue.severity.toUpperCase()}] ${issue.title}</div>
       <div class="desc">${issue.description}</div>
-      ${issue.fix ? `<button class="fix-btn" data-code="${encodeURIComponent(issue.fix.code)}">Copy Fix: ${issue.fix.fixType.toUpperCase()}</button>` : ''}
+      ${issue.fix ? `<div class="fix-line">${issue.fix}</div>` : ''}
     `;
         issueListEl.appendChild(card);
     }
-    // Attach fix copy handlers
-    issueListEl.querySelectorAll('.fix-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const code = decodeURIComponent(e.target.getAttribute('data-code') || '');
-            navigator.clipboard.writeText(code).then(() => {
-                e.target.textContent = 'Copied!';
-                setTimeout(() => { e.target.textContent = 'Copy Fix'; }, 1500);
-            });
-        });
-    });
 }
 // --- GitHub Issue Generator ---
 function generateGithubIssue(report) {
-    const issueLines = report.issues.map(i => `- **[${i.severity.toUpperCase()}]** ${i.title}\n  ${i.description}${i.selector ? `\n  Selector: \`${i.selector}\`` : ''}`).join('\n');
+    const issueLines = report.issues.map(i => `- **[${i.severity.toUpperCase()}]** ${i.title}\n  ${i.description}${i.selector ? `\n  Selector: \`${i.selector}\`` : ''}${i.fix ? `\n  Fix: ${i.fix}` : ''}`).join('\n');
     return `## AuditTest Vision Report
 
 **Page:** ${report.pageUrl}
+**Score:** ${report.score}/100 (${report.scoreLabel})
 **Date:** ${report.timestamp}
 **Duration:** ${report.durationMs}ms
-**Total Issues:** ${report.totalIssues} (${report.criticalCount} critical)
+**Issues:** ${report.totalIssues} (${report.criticalCount} critical, ${report.majorCount} major, ${report.minorCount} minor)
 
-### Issues Found
+### Issues
 
 ${issueLines}
 
-### Auto-Fix Patches
-
-${report.patches.length > 0
-        ? report.patches.map(p => `\`\`\`css\n/* ${p.description} */\n${p.code}\n\`\`\``).join('\n\n')
-        : '_No auto-fixes available_'}
-
 ---
-*Generated by AuditTest Vision v1.0.0*`;
+*Generated by AuditTest Vision v1.1.0*`;
 }
 //# sourceMappingURL=popup.js.map

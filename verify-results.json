@@ -1,0 +1,14 @@
+{
+  "tsc": {
+    "status": "PASS",
+    "output": ""
+  },
+  "vitest": {
+    "status": "PASS",
+    "output": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.7 \u001b[39m\u001b[90mC:/Users/lvfm/Documents/Hackaton Kiro\u001b[39m\n\n \u001b[32m✓\u001b[39m src/cli/audittest.test.ts \u001b[2m(\u001b[22m\u001b[2m13 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m13 passed\u001b[39m\u001b[22m\u001b[90m (13)\u001b[39m\n\u001b[2m   Start at \u001b[22m 04:42:19\n\u001b[2m   Duration \u001b[22m 679ms\u001b[2m (transform 61ms, setup 0ms, collect 84ms, tests 9ms, environment 0ms, prepare 199ms)\u001b[22m\n\n"
+  },
+  "tscExtension": {
+    "status": "PASS",
+    "output": ""
+  }
+}
