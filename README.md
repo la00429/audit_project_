@@ -149,31 +149,32 @@ Cada auditoría calcula un puntaje basado en la severidad de los issues:
 ## Arquitectura
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                     AuditTest Vision                          │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌────────────┐  ┌────────────┐  ┌─────────────┐           │
-│  │  Visual    │  │   WCAG     │  │  Auto-Fix   │           │
-│  │  Module    │  │  Module    │  │   Module    │           │
-│  │(Puppeteer) │  │ (7 Reglas) │  │(Sugerencias)│           │
-│  └─────┬──────┘  └─────┬──────┘  └──────┬──────┘           │
-│        └────────┬───────┴────────┬───────┘                  │
-│                 │                │                            │
-│          ┌──────┴──────┐  ┌─────┴────────┐                 │
-│          │Score Engine │  │ Report Gen.  │                 │
-│          │  (0-100)    │  │(HTML/PDF/JSON)│                 │
-│          └──────┬──────┘  └──────────────┘                 │
-│                 │                                            │
-│  ┌──────────────┼──────────────────────────┐               │
-│  │              │                          │               │
-│  ▼              ▼                          ▼               │
-│ CLI           Chrome Ext.            Git Hook              │
-│ --report      Popup UI               Pre-push             │
-│ --diff        Badges                  Quality gate         │
-│ --watch       GitHub export                                │
-│ --pdf                                                      │
-└──────────────────────────────────────────────────────────────┘
++--------------------------------------------------------------+
+|                      AuditTest Vision                        |
++--------------------------------------------------------------+
+|                                                              |
+|   +-----------+   +-----------+   +------------+            |
+|   |  Visual   |   |   WCAG    |   |  Auto-Fix  |            |
+|   |  Module   |   |  Module   |   |   Module   |            |
+|   |(Puppeteer)|   | (7 Reglas)|   |(Sugerencias)|           |
+|   +-----+-----+   +-----+-----+   +------+-----+           |
+|         |               |                 |                  |
+|         +-------+-------+-------+---------+                  |
+|                 |               |                             |
+|          +------+------+  +----+--------+                    |
+|          |Score Engine |  | Report Gen. |                    |
+|          |  (0-100)    |  |(HTML/PDF/JSON)|                  |
+|          +------+------+  +-------------+                    |
+|                 |                                             |
+|     +-----------+-----------+-----------+                    |
+|     |           |           |           |                    |
+|     v           v           v           v                    |
+|    CLI      Chrome Ext.  Git Hook   CI/CD                    |
+|  --report   Popup UI     Pre-push   JSON output              |
+|  --diff     Badges       Quality                             |
+|  --watch    Export       gate                                |
+|  --pdf                                                       |
++--------------------------------------------------------------+
 ```
 
 ---
@@ -223,16 +224,24 @@ Proyecto construido usando el flujo SDD nativo de Kiro IDE:
 ```
 .kiro/
 ├── specs/audit-vision/
-│   ├── requirements.md    ← 11 requisitos EARS + 7 NFRs
-│   ├── design.md          ← Arquitectura y flujo de datos
-│   └── tasks.md           ← 41 tareas en 11 fases
+│   ├── requirements.md       # 11 requisitos EARS + 7 NFRs
+│   ├── design.md             # Arquitectura y flujo de datos
+│   └── tasks.md              # 41 tareas en 11 fases
 ├── hooks/
-│   ├── validate-env.json  ← Valida config antes de tareas
-│   ├── lint-on-save.json  ← TypeScript check al guardar
-│   └── pre-push-audit-check.json ← Gate de calidad
+│   ├── validate-env.json     # Valida config antes de tareas
+│   ├── lint-on-save.json     # TypeScript check al guardar
+│   └── pre-push-audit-check.json  # Gate de calidad
 └── steering/
-    └── audit-vision.md    ← Estándares y reglas del proyecto
+    └── audit-vision.md       # Estandares y reglas del proyecto
 ```
+
+### Flujo SDD aplicado:
+
+1. **Requirements** - 11 requisitos funcionales en formato EARS + 7 no funcionales
+2. **Design** - Arquitectura microkernel, interfaces TypeScript, data flow
+3. **Tasks** - 41 tareas divididas en 11 fases ejecutadas secuencialmente
+4. **Hooks** - Validacion automatica de env, lint al guardar, gate pre-push
+5. **Steering** - Contexto persistente con reglas de codigo y convenciones
 
 ---
 
@@ -241,23 +250,38 @@ Proyecto construido usando el flujo SDD nativo de Kiro IDE:
 ```
 audittest-vision/
 ├── src/
-│   ├── core/auditEngine.ts        # Orquestador (microkernel)
+│   ├── core/
+│   │   └── auditEngine.ts           # Orquestador central (microkernel)
 │   ├── modules/
-│   │   ├── visualModule.ts         # Detección visual
-│   │   ├── wcagModule.ts           # Motor de reglas WCAG
-│   │   └── autoFixModule.ts        # Generador de sugerencias
-│   ├── extension/                  # Chrome Extension completa
-│   │   ├── manifest.json, popup.html/ts
-│   │   ├── content.ts, background.ts
-│   │   └── icons/
+│   │   ├── visualModule.ts           # Deteccion visual de layout
+│   │   ├── wcagModule.ts             # Motor de reglas WCAG 2.1
+│   │   └── autoFixModule.ts          # Generador de sugerencias
+│   ├── extension/
+│   │   ├── manifest.json             # Chrome Manifest V3
+│   │   ├── popup.html                # UI del popup
+│   │   ├── popup.ts                  # Controlador del popup
+│   │   ├── content.ts                # Script inyectado en paginas
+│   │   ├── content.css               # Estilos del overlay
+│   │   ├── background.ts             # Service worker
+│   │   └── icons/                    # Iconos 16/48/128px
 │   └── cli/
-│       ├── audittest.ts            # CLI principal (entry point)
-│       └── git-hook-pre-push.sh    # Hook de git
-├── scripts/                        # Build utilities
-├── docs/index.html                 # Landing page (GitHub Pages)
-├── .kiro/                          # SDD specs, hooks, steering
-├── audit-rules.spec.json           # Configuración de reglas
-└── dist/                           # Build compilado
+│       ├── audittest.ts              # CLI principal (entry point)
+│       └── git-hook-pre-push.sh      # Hook de git
+├── scripts/
+│   ├── build.ps1                     # Script de build (Windows)
+│   ├── copy-assets.cjs               # Copia assets al dist
+│   └── generate-icons.cjs            # Genera iconos PNG
+├── docs/
+│   └── index.html                    # Landing page (GitHub Pages)
+├── .kiro/
+│   ├── specs/audit-vision/           # SDD: requirements, design, tasks
+│   ├── hooks/                        # Hooks: validate, lint, pre-push
+│   └── steering/                     # Reglas y estandares
+├── dist/                             # Build compilado
+├── audit-rules.spec.json             # Configuracion de reglas
+├── package.json                      # Dependencias y scripts
+├── tsconfig.json                     # TypeScript config base
+└── tsconfig.extension.json           # TypeScript config para build
 ```
 
 ---
