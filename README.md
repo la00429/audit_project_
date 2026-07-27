@@ -153,19 +153,19 @@ Cada auditoría calcula un puntaje basado en la severidad de los issues:
 |                      AuditTest Vision                        |
 +--------------------------------------------------------------+
 |                                                              |
-|   +-----------+   +-----------+   +------------+            |
-|   |  Visual   |   |   WCAG    |   |  Auto-Fix  |            |
-|   |  Module   |   |  Module   |   |   Module   |            |
-|   |(Puppeteer)|   | (7 Reglas)|   |(Sugerencias)|           |
-|   +-----+-----+   +-----+-----+   +------+-----+           |
+|   +-----------+   +-----------+   +-------------+            |
+|   |  Visual   |   |   WCAG    |   |  Auto-Fix   |            |
+|   |  Module   |   |  Module   |   |   Module    |            |
+|   |(Puppeteer)|   | (7 Reglas)|   |(Sugerencias)|            |
+|   +-----+-----+   +-----+-----+   +------+------+            |
 |         |               |                 |                  |
 |         +-------+-------+-------+---------+                  |
-|                 |               |                             |
+|                 |               |                            |
 |          +------+------+  +----+--------+                    |
 |          |Score Engine |  | Report Gen. |                    |
 |          |  (0-100)    |  |(HTML/PDF/JSON)|                  |
 |          +------+------+  +-------------+                    |
-|                 |                                             |
+|                 |                                            |
 |     +-----------+-----------+-----------+                    |
 |     |           |           |           |                    |
 |     v           v           v           v                    |
