@@ -1,0 +1,18 @@
+/**
+ * AuditTest Vision — Content Script Styles
+ * Minimal styles for injected overlay elements.
+ */
+
+.audittest-badge {
+  animation: audittest-pulse 2s infinite;
+}
+
+@keyframes audittest-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+#audittest-vision-fab {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.5px;
+}
