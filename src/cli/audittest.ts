@@ -46,6 +46,7 @@ const flags = {
   help: args.includes('--help') || args.includes('-h'),
   verbose: args.includes('--verbose') || args.includes('-v'),
   screenshot: args.includes('--screenshot'),
+  report: args.includes('--report'),
 };
 const targetUrl = args.find(a => !a.startsWith('--') && !a.startsWith('-'));
 
@@ -67,6 +68,7 @@ Ejemplos:
   npx audittest-vision https://miapp.com --json --screenshot
 
 Opciones:
+  --report       Genera reporte HTML interactivo con screenshot anotado
   --json         Salida en formato JSON (para CI/CD)
   --fix          Mostrar sugerencias de auto-fix para cada issue
   --screenshot   Guardar screenshot de la página auditada
@@ -120,10 +122,13 @@ async function main() {
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
     // Screenshot
-    if (flags.screenshot) {
+    let screenshotBase64 = '';
+    if (flags.screenshot || flags.report) {
       const screenshotPath = 'audittest-screenshot.png';
-      await page.screenshot({ path: screenshotPath, fullPage: true });
-      printStep(`Screenshot guardado: ${screenshotPath}`);
+      const screenshotBuffer = await page.screenshot({ fullPage: false, encoding: 'binary' }) as Buffer;
+      fs.writeFileSync(screenshotPath, screenshotBuffer);
+      screenshotBase64 = screenshotBuffer.toString('base64');
+      if (flags.screenshot) printStep(`Screenshot guardado: ${screenshotPath}`);
     }
 
     printStep('Extrayendo metadatos del DOM...');
@@ -134,6 +139,15 @@ async function main() {
     const issues = runAudit(elements);
 
     const duration = Date.now() - startTime;
+
+    // Generate HTML report
+    if (flags.report) {
+      const reportPath = 'audittest-report.html';
+      const htmlReport = generateHTMLReport(issues, url, duration, screenshotBase64, elements);
+      fs.writeFileSync(reportPath, htmlReport);
+      printStep(`Reporte HTML generado: ${reportPath}`);
+      printStep('Abre el archivo en tu navegador para ver el reporte interactivo');
+    }
 
     // Output
     if (flags.json) {
@@ -462,6 +476,160 @@ function printResults(issues: AuditIssue[], url: string, durationMs: number) {
     console.log(`  \x1b[90mExit code: 0\x1b[0m`);
   }
   console.log('');
+}
+
+// --- HTML Report Generator ---
+
+function generateHTMLReport(
+  issues: AuditIssue[],
+  url: string,
+  durationMs: number,
+  screenshotBase64: string,
+  elements: ElementMeta[]
+): string {
+  const critical = issues.filter(i => i.severity === 'critical').length;
+  const major = issues.filter(i => i.severity === 'major').length;
+  const minor = issues.filter(i => i.severity === 'minor').length;
+
+  const severityColor: Record<string, string> = {
+    critical: '#ef4444',
+    major: '#f59e0b',
+    minor: '#3b82f6',
+    info: '#71717a',
+  };
+
+  // Generate overlay markers for issues with bounding boxes
+  const markers = issues
+    .filter(i => i.selector)
+    .map(issue => {
+      const el = elements.find(e => e.selector === issue.selector);
+      if (!el || el.boundingBox.width === 0) return '';
+      const { x, y, width, height } = el.boundingBox;
+      const color = severityColor[issue.severity] || '#71717a';
+      return `<div class="marker" style="left:${x}px;top:${y}px;width:${width}px;height:${height}px;border-color:${color}" data-id="${issue.id}" title="${issue.title}"><span class="marker-badge" style="background:${color}">${issue.id}</span></div>`;
+    })
+    .join('\n');
+
+  // Generate issue cards
+  const issueCards = issues.map(issue => {
+    const color = severityColor[issue.severity] || '#71717a';
+    return `
+      <div class="issue-card" data-id="${issue.id}" style="border-left-color:${color}">
+        <div class="issue-header">
+          <span class="severity-badge" style="background:${color}">${issue.severity.toUpperCase()}</span>
+          <span class="issue-id">${issue.id}</span>
+        </div>
+        <h3>${issue.title}</h3>
+        <p>${issue.description}</p>
+        ${issue.selector ? `<code class="selector">${issue.selector}</code>` : ''}
+        ${issue.wcagCriterion ? `<span class="wcag-tag">WCAG ${issue.wcagCriterion}</span>` : ''}
+        ${issue.fix ? `<div class="fix-suggestion"><strong>Fix:</strong> ${issue.fix}</div>` : ''}
+      </div>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AuditTest Vision Report — ${url}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f14;color:#e4e4e7}
+.header{background:linear-gradient(135deg,#1a1025,#0f0f14);padding:32px 40px;border-bottom:1px solid #27272a}
+.header h1{font-size:1.8rem;background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.header .meta{color:#71717a;font-size:.85rem}
+.header .meta span{margin-right:16px}
+.summary{display:flex;gap:16px;padding:24px 40px;border-bottom:1px solid #27272a}
+.summary-card{background:#1c1c22;border-radius:10px;padding:16px 24px;text-align:center;min-width:120px}
+.summary-card .count{font-size:2rem;font-weight:700}
+.summary-card .label{font-size:.75rem;color:#71717a;text-transform:uppercase;margin-top:4px}
+.count-critical{color:#ef4444}
+.count-major{color:#f59e0b}
+.count-minor{color:#3b82f6}
+.count-total{color:#a78bfa}
+.layout{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 200px)}
+.screenshot-panel{position:relative;overflow:auto;background:#0a0a0e;border-right:1px solid #27272a}
+.screenshot-panel img{display:block}
+.marker{position:absolute;border:2px solid;border-radius:3px;cursor:pointer;transition:all .2s;opacity:.7}
+.marker:hover{opacity:1;z-index:100;box-shadow:0 0 20px rgba(99,102,241,.5)}
+.marker-badge{position:absolute;top:-10px;left:-2px;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap}
+.issues-panel{overflow-y:auto;padding:20px;background:#0f0f14}
+.issues-panel h2{font-size:1rem;color:#a1a1aa;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #27272a}
+.issue-card{background:#1c1c22;border-radius:8px;padding:16px;margin-bottom:12px;border-left:3px solid;cursor:pointer;transition:background .2s}
+.issue-card:hover,.issue-card.active{background:#252530}
+.issue-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.severity-badge{color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px}
+.issue-id{color:#52525b;font-size:.75rem}
+.issue-card h3{font-size:.9rem;color:#fff;margin-bottom:6px}
+.issue-card p{font-size:.8rem;color:#a1a1aa;line-height:1.5;margin-bottom:8px}
+.issue-card code.selector{display:inline-block;background:#27272a;padding:2px 8px;border-radius:4px;font-size:.75rem;color:#c4b5fd}
+.wcag-tag{display:inline-block;background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:.7rem;margin-left:8px}
+.fix-suggestion{margin-top:10px;padding:10px;background:#0f2d1a;border:1px solid #16a34a33;border-radius:6px;font-size:.8rem;color:#4ade80}
+.no-issues{text-align:center;padding:60px 20px;color:#4ade80;font-size:1.1rem}
+.footer{padding:16px 40px;text-align:center;color:#3f3f46;font-size:.75rem;border-top:1px solid #27272a}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>AuditTest Vision — Reporte de Auditoria</h1>
+  <div class="meta">
+    <span>URL: ${url}</span>
+    <span>Fecha: ${new Date().toLocaleString('es-ES')}</span>
+    <span>Duracion: ${durationMs}ms</span>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="summary-card"><div class="count count-total">${issues.length}</div><div class="label">Total Issues</div></div>
+  <div class="summary-card"><div class="count count-critical">${critical}</div><div class="label">Criticos</div></div>
+  <div class="summary-card"><div class="count count-major">${major}</div><div class="label">Mayores</div></div>
+  <div class="summary-card"><div class="count count-minor">${minor}</div><div class="label">Menores</div></div>
+</div>
+
+<div class="layout">
+  <div class="screenshot-panel">
+    ${screenshotBase64 ? `<img src="data:image/png;base64,${screenshotBase64}" alt="Screenshot de la pagina auditada">` : '<p style="padding:40px;color:#52525b">Screenshot no disponible</p>'}
+    ${markers}
+  </div>
+  <div class="issues-panel">
+    <h2>Problemas Detectados (${issues.length})</h2>
+    ${issues.length === 0 ? '<div class="no-issues">Sin problemas detectados. La pagina cumple las reglas evaluadas.</div>' : issueCards}
+  </div>
+</div>
+
+<div class="footer">Generado por AuditTest Vision v1.0.0 — npx audittest-vision</div>
+
+<script>
+// Interactive: highlight markers when clicking issue cards
+document.querySelectorAll('.issue-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const id = card.getAttribute('data-id');
+    document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    const marker = document.querySelector('.marker[data-id="'+id+'"]');
+    if (marker) {
+      marker.style.opacity = '1';
+      marker.style.boxShadow = '0 0 20px rgba(99,102,241,.8)';
+      marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => { marker.style.boxShadow = ''; marker.style.opacity = ''; }, 2000);
+    }
+  });
+});
+document.querySelectorAll('.marker').forEach(marker => {
+  marker.addEventListener('click', () => {
+    const id = marker.getAttribute('data-id');
+    const card = document.querySelector('.issue-card[data-id="'+id+'"]');
+    if (card) {
+      document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+});
+</script>
+</body>
+</html>`;
 }
 
 // --- Run ---
